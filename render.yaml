@@ -9,7 +9,7 @@ services:
     rootDir: backend
     buildCommand: npx --yes pnpm@12.4.1 install --frozen-lockfile
     startCommand: node src/server.js
-    healthCheckPath: /api/salud
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production

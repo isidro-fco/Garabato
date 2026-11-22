@@ -36,12 +36,12 @@ En el proyecto de Neon, abre la base `prod` → **Connect** y copia la cadena de
 
 ### 2. Render (backend)
 
-1. **New → Blueprint** y elige este repositorio. Render lee `render.yaml` y crea el servicio `garabato-api` (Node 24, región Ohio, carpeta `backend`, health check en `/api/salud`). `SESSION_SECRET` se genera solo.
+1. **New → Blueprint** y elige este repositorio. Render lee `render.yaml` y crea el servicio `garabato-api` (Node 24, región Ohio, carpeta `backend`, health check en `/api/health`). `SESSION_SECRET` se genera solo.
 2. Captura las variables que pide:
    - `DATABASE_URL`: la de `prod` del paso 1.
    - `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`: las mismas de desarrollo.
    - `GOOGLE_REDIRECT_URI`: `https://<tu-proyecto>.vercel.app/auth/callback`. Si todavía no sabes el dominio de Vercel, pon el que esperas y corrígelo después del paso 3.
-3. Cuando termine, abre `https://garabato-api.onrender.com/api/salud`: debe responder `{"ok":true}`. Si Render le dio otra URL al servicio, cámbiala en los dos `destination` de `frontend/vercel.json`.
+3. Cuando termine, abre `https://garabato-api-brzf.onrender.com/api/health`: debe responder `{"ok":true}`. Si Render le dio otra URL al servicio, cámbiala en los dos `destination` de `frontend/vercel.json`.
 
 ### 3. Vercel (frontend)
 
