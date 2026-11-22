@@ -167,3 +167,89 @@
   .impresion { background: #fff !important; min-height: 0 !important; }
   .impresion-barra, .impresion-aviso { display: none !important; }
 }
+
+/* FullCalendar con los colores del tema (claro y oscuro). */
+.calendario .fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--card);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-list-event-hover-bg-color: var(--muted);
+  --fc-today-bg-color: color-mix(in oklab, var(--primary) 6%, transparent);
+  --fc-now-indicator-color: var(--destructive);
+  --fc-button-text-color: var(--foreground);
+  --fc-button-bg-color: var(--background);
+  --fc-button-border-color: var(--border);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--muted);
+  --fc-button-active-border-color: var(--border);
+  font-size: 0.875rem;
+}
+.calendario .fc .fc-toolbar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+/* "noviembre de 2026" → "Noviembre de 2026" (capitalize daría "De"). */
+.calendario .fc .fc-toolbar-title::first-letter,
+.calendario .fc .fc-list-day-text::first-letter {
+  text-transform: uppercase;
+}
+.calendario .fc .fc-button {
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  box-shadow: none;
+}
+.calendario .fc .fc-button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+.calendario .fc .fc-button:disabled {
+  opacity: 0.5;
+}
+.calendario .fc .fc-col-header-cell-cushion {
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.calendario .fc .fc-list-day-text {
+  display: inline-block;
+  font-weight: 500;
+}
+.calendario .fc .fc-list-event-title {
+  white-space: normal;
+}
+.calendario .fc .fc-daygrid-day-number,
+.calendario .fc .fc-col-header-cell-cushion {
+  color: var(--muted-foreground);
+}
+.calendario .fc .fc-day-today .fc-daygrid-day-number {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.calendario .fc .fc-scrollgrid {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.calendario .fc-event {
+  cursor: pointer;
+  border-radius: 0.3rem;
+  padding: 0.0625rem 0.25rem;
+}
+.calendario .fc-timegrid-event {
+  padding: 0.25rem 0.375rem;
+  font-weight: 500;
+}
+.calendario .fc-daygrid-event.evento-atrasado {
+  outline: 2px solid var(--destructive);
+  outline-offset: 1px;
+}
+.calendario .fc-list-event.evento-atrasado .fc-list-event-title {
+  color: var(--destructive);
+}
+.calendario .fc-list-event:hover td {
+  background: var(--muted);
+}
+.calendario .fc-theme-standard .fc-list-day-cushion {
+  background: var(--muted);
+}

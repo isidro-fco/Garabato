@@ -128,11 +128,11 @@ garabato/
 
 ## Fase 6: Pantalla de inicio y horario
 
-- [ ] Backend: CRUD `/api/horarios`.
-- [ ] `Configuracion.jsx`: capturar el horario de cada materia (días y horas).
-- [ ] `Inicio.jsx`: FullCalendar con las tareas pendientes en vista de mes.
-- [ ] Botón para cambiar a la vista "Horario", que muestra la semana con `timegrid`.
-- [ ] Hacer que al dar clic en una tarea del calendario te lleve a su materia o tarea.
+- [x] Backend: CRUD `/api/horarios`.
+- [x] `Configuracion.jsx`: capturar el horario de cada materia (días y horas).
+- [x] `Inicio.jsx`: FullCalendar con las tareas pendientes en vista de mes.
+- [x] Botón para cambiar a la vista "Horario", que muestra la semana con `timegrid`.
+- [x] Hacer que al dar clic en una tarea del calendario te lleve a su materia o tarea.
 
 **Listo cuando:** la pantalla de inicio muestra tus entregas y tu horario semanal.
 

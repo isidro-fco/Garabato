@@ -61,3 +61,9 @@ export const crearDocumento = (datos = {}) => enviar('/api/documentos', 'POST', 
 export const actualizarDocumento = (docId, cambios, { keepalive = false } = {}) =>
   enviar(`/api/documentos/${id(docId)}`, 'PATCH', cambios, { keepalive })
 export const eliminarDocumento = (docId) => pedir(`/api/documentos/${id(docId)}`, { method: 'DELETE' })
+
+// --- Horarios ---
+export const listarHorarios = () => pedir('/api/horarios')
+// datos: { cursoId, dia (0 = domingo), horaInicio: 'HH:MM', horaFin: 'HH:MM' }
+export const crearHorario = (datos) => enviar('/api/horarios', 'POST', datos)
+export const eliminarHorario = (horarioId) => pedir(`/api/horarios/${id(horarioId)}`, { method: 'DELETE' })

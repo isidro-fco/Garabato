@@ -1,24 +1,183 @@
-import { BookOpen, FileText } from 'lucide-react'
-import { Link, useOutletContext } from 'react-router-dom'
-import { Encabezado } from '../componentes/Estado.jsx'
-import { Button } from '@/componentes/ui/button'
+import esLocale from '@fullcalendar/core/locales/es'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import listPlugin from '@fullcalendar/list'
+import FullCalendar from '@fullcalendar/react'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import { CalendarDays, CircleAlert, Clock } from 'lucide-react'
+import { useState } from 'react'
+import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
+import { listarClases, listarHorarios, listarPendientes } from '../api.js'
+import { Cargando, Encabezado, MensajeError } from '../componentes/Estado.jsx'
+import { Tabs, TabsList, TabsTrigger } from '@/componentes/ui/tabs'
+import { COLOR_SIN_CLASE, coloresPorClase, rangoHorario } from '../utils/horario.js'
+import { useCargar } from '../utils/useCargar.js'
+import { useMediaQuery } from '../utils/useMediaQuery.js'
 
-// Por ahora solo da la bienvenida; el calendario llega en la fase 6.
+// Opciones comunes de los dos calendarios.
+const BASE = {
+  locale: esLocale,
+  firstDay: 1,
+  height: 'auto',
+  nowIndicator: true,
+}
+
 export default function Inicio() {
   const { usuario } = useOutletContext()
-  const nombre = usuario.nombre.split(' ')[0]
+  const [params, setParams] = useSearchParams()
+  const vista = params.get('vista') === 'horario' ? 'horario' : 'entregas'
+  // Las clases solo dan nombre y color; si Classroom falla, el calendario sigue.
+  const clases = useCargar(() => listarClases().catch(() => []), [])
 
   return (
     <>
-      <Encabezado titulo={`Hola, ${nombre}`} descripcion="Aquí verás tu calendario de entregas y tu horario." />
-      <div className="flex flex-wrap gap-2">
-        <Button asChild>
-          <Link to="/clases"><BookOpen />Ver mis clases</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link to="/documentos"><FileText />Mis documentos</Link>
-        </Button>
-      </div>
+      <Encabezado
+        titulo={`Hola, ${usuario.nombre.split(' ')[0]}`}
+        descripcion={vista === 'horario' ? 'Tu semana de clases.' : 'Tus entregas pendientes.'}
+        accion={(
+          <Tabs value={vista} onValueChange={(v) => setParams(v === 'horario' ? { vista: v } : {}, { replace: true })}>
+            <TabsList>
+              <TabsTrigger value="entregas"><CalendarDays />Entregas</TabsTrigger>
+              <TabsTrigger value="horario"><Clock />Horario</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
+      />
+      {clases.cargando
+        ? <Cargando />
+        : vista === 'horario'
+          ? <Horario clases={clases.datos} />
+          : <Entregas clases={clases.datos} />}
     </>
+  )
+}
+
+function Entregas({ clases }) {
+  const navigate = useNavigate()
+  const esMovil = useMediaQuery('(max-width: 767px)')
+  const { cargando, datos: tareas, error } = useCargar(listarPendientes, [])
+  const [ahora] = useState(() => new Date())
+  if (cargando) return <Cargando texto="Cargando tus entregas…" />
+  if (error) return <MensajeError error={error} />
+
+  const colores = coloresPorClase(clases)
+  const eventos = tareas.map((t) => ({
+    id: t.id,
+    title: t.titulo,
+    start: t.fechaEntrega,
+    color: colores.get(t.cursoId) ?? COLOR_SIN_CLASE,
+    classNames: new Date(t.fechaEntrega) < ahora ? ['evento-atrasado'] : [],
+    extendedProps: { cursoId: t.cursoId, curso: t.curso, atrasada: new Date(t.fechaEntrega) < ahora },
+  }))
+  const atrasadas = eventos.filter((e) => e.extendedProps.atrasada).length
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {tareas.length === 0
+          ? 'No tienes entregas pendientes. 🎉'
+          : `${tareas.length} ${tareas.length === 1 ? 'entrega pendiente' : 'entregas pendientes'}`}
+        {atrasadas > 0 && <span className="text-destructive"> · {atrasadas} {atrasadas === 1 ? 'atrasada' : 'atrasadas'}</span>}
+      </p>
+      <div className="calendario rounded-xl border bg-card p-3 md:p-4">
+        <FullCalendar
+          {...BASE}
+          // En celular la cuadrícula del mes no cabe: se muestra como lista.
+          key={esMovil ? 'lista' : 'mes'}
+          plugins={[dayGridPlugin, listPlugin]}
+          initialView={esMovil ? 'listMonth' : 'dayGridMonth'}
+          headerToolbar={{ left: 'title', right: 'today prev,next' }}
+          events={eventos}
+          eventDisplay="block"
+          // Una entrega es un instante, no un rango. Con la duración por defecto
+          // (1 h), una tarea de las 23:59 se estiraba hasta el día siguiente.
+          defaultTimedEventDuration="00:00:01"
+          dayMaxEvents={3}
+          eventTimeFormat={{ hour: 'numeric', minute: '2-digit' }}
+          noEventsContent="Sin entregas este mes"
+          listDayFormat={{ weekday: 'long', day: 'numeric', month: 'long' }}
+          listDaySideFormat={false}
+          eventContent={ContenidoEntrega}
+          eventClick={({ event, jsEvent }) => {
+            jsEvent.preventDefault()
+            navigate(`/clases/${event.extendedProps.cursoId}/tareas/${event.id}`)
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function ContenidoEntrega({ event, timeText, view }) {
+  if (view.type.startsWith('list')) {
+    return (
+      <span className="flex min-w-0 flex-col">
+        <span className="flex items-center gap-1 font-medium">
+          {event.extendedProps.atrasada && <CircleAlert className="size-3.5 shrink-0" aria-label="Atrasada" />}
+          {event.title}
+        </span>
+        <span className="text-xs text-muted-foreground">{event.extendedProps.curso}</span>
+      </span>
+    )
+  }
+  return (
+    <span className="flex min-w-0 items-center gap-1" title={`${event.title} · ${event.extendedProps.curso}`}>
+      {event.extendedProps.atrasada && <CircleAlert className="size-3.5 shrink-0" aria-label="Atrasada" />}
+      <span className="shrink-0 opacity-80">{timeText}</span>
+      <span className="truncate font-medium">{event.title}</span>
+    </span>
+  )
+}
+
+function Horario({ clases }) {
+  const navigate = useNavigate()
+  const esMovil = useMediaQuery('(max-width: 767px)')
+  const { cargando, datos: horarios, error } = useCargar(listarHorarios, [])
+  if (cargando) return <Cargando texto="Cargando tu horario…" />
+  if (error) return <MensajeError error={error} />
+
+  const colores = coloresPorClase(clases)
+  const nombres = new Map(clases.map((c) => [c.id, c.nombre]))
+  const { inicio, fin } = rangoHorario(horarios)
+  const eventos = horarios.map((h) => ({
+    id: String(h.id),
+    title: nombres.get(h.cursoId) ?? 'Clase',
+    daysOfWeek: [h.dia],
+    startTime: h.horaInicio,
+    endTime: h.horaFin,
+    color: colores.get(h.cursoId) ?? COLOR_SIN_CLASE,
+    extendedProps: { cursoId: h.cursoId },
+  }))
+  // ¿Hay clases en fin de semana? Si no, la semana va de lunes a viernes.
+  const conFinDeSemana = horarios.some((h) => h.dia === 0 || h.dia === 6)
+
+  return (
+    <div className="space-y-3">
+      {horarios.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Todavía no capturas tu horario. Hazlo en{' '}
+          <Link to="/configuracion" className="font-medium text-foreground underline underline-offset-4">Configuración</Link>.
+        </p>
+      )}
+      <div className="calendario rounded-xl border bg-card p-3 md:p-4">
+        <FullCalendar
+          {...BASE}
+          // En celular se ve un día a la vez.
+          key={esMovil ? 'dia' : 'semana'}
+          plugins={[timeGridPlugin]}
+          initialView={esMovil ? 'timeGridDay' : 'timeGridWeek'}
+          // El horario se repite cada semana: en escritorio no hace falta navegar.
+          headerToolbar={esMovil ? { left: 'title', right: 'today prev,next' } : false}
+          dayHeaderFormat={esMovil ? { weekday: 'long', day: 'numeric' } : { weekday: 'long' }}
+          weekends={esMovil || conFinDeSemana}
+          allDaySlot={false}
+          slotMinTime={inicio}
+          slotMaxTime={fin}
+          slotDuration="00:30:00"
+          slotLabelFormat={{ hour: 'numeric', minute: '2-digit' }}
+          events={eventos}
+          eventClick={({ event }) => navigate(`/clases/${event.extendedProps.cursoId}`)}
+        />
+      </div>
+    </div>
   )
 }

@@ -33,13 +33,19 @@ export default function BarraLateral({ usuario }) {
             key={ruta}
             to={ruta}
             end={ruta === '/'}
+            title={texto}
             className={({ isActive }) => cn(
               'flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground',
               isActive && 'bg-sidebar-accent font-medium text-foreground',
             )}
           >
-            <Icono className="size-4" aria-hidden="true" />
-            {texto}
+            {({ isActive }) => (
+              <>
+                <Icono className="size-4" aria-hidden="true" />
+                {/* En pantallas angostas solo la sección actual muestra su nombre. */}
+                <span className={cn(!isActive && 'sr-only sm:not-sr-only')}>{texto}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

@@ -136,3 +136,28 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba automatizada de la interfaz nueva: autoguardado, opciones, exportar, vincular, eliminar, modo oscuro y celular sin desbordamiento.
 
 **Resultado:** exportas un PDF con portada, encabezados y páginas numeradas, igual a la vista previa. ✅
+
+---
+
+## Iteración 7 — Fase 6: Pantalla de inicio y horario (22 nov 2026)
+
+**Backend**
+- Módulo `horarios/`: `GET`, `POST`, `PATCH` y `DELETE /api/horarios`. Horas en formato `HH:MM`, día de 0 (domingo) a 6; si la hora de fin no es posterior a la de inicio responde 400. Cada usuario solo ve y modifica sus horarios.
+
+**Frontend**
+- `Configuracion.jsx`: tarjeta por materia con su color; se agregan bloques eligiendo uno o varios días con hora de inicio y fin, y avisa si se cruzan con otra clase.
+- `Inicio.jsx` con FullCalendar 6.1:
+  - Pestaña "Entregas": mes con las tareas pendientes, un color por materia y las atrasadas marcadas; clic → la tarea. En celular se ve como lista.
+  - Pestaña "Horario": semana con `timegrid` (lunes a viernes, o con fin de semana si hay clases), solo el rango de horas usado; clic → la materia. En celular, un día a la vez.
+- Inicio y el editor se cargan bajo demanda: el paquete principal bajó de 456 a 375 kB.
+- En celular, la barra superior muestra solo íconos y el nombre de la sección actual.
+- Se quitó `package-lock.json`; el frontend usa solo pnpm.
+
+**Corrección**
+- Las entregas de la noche (por ejemplo 23:59) se estiraban al día siguiente porque FullCalendar les asignaba 1 h de duración; ahora duran un instante.
+
+**Pruebas**
+- CRUD de horarios contra la base `dev` con usuarios temporales (15/15).
+- Prueba en Chrome: calendario, colores, atrasadas, clics, captura de horario, choques, modo oscuro y celular.
+
+**Resultado:** la pantalla de inicio muestra tus entregas y tu horario semanal. ✅
