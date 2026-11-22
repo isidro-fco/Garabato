@@ -1,0 +1,5 @@
+# Scripts de instalación de dependencias de Paged.js: no hacen falta
+# (solo imprimen mensajes), así que no se ejecutan.
+allowBuilds:
+  core-js: false
+  es5-ext: false

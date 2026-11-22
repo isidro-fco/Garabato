@@ -1,23 +1,19 @@
 import { useDeferredValue } from 'react'
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { cn } from '@/lib/utils'
+import DocumentoImpreso from './DocumentoImpreso.jsx'
 
-// remark-gfm agrega tablas, listas de tareas, tachado y enlaces automáticos.
-const PLUGINS = [remarkGfm]
+const SALTO = <div className="salto-pagina" aria-hidden="true"><span>Salto de página</span></div>
 
-const COMPONENTES = {
-  a: (props) => <a {...props} target="_blank" rel="noreferrer" />,
-}
-
-export default function VistaPrevia({ contenido }) {
+export default function VistaPrevia({ titulo, contenido, opciones, className }) {
   // Si el documento es largo, escribir no espera a que termine de dibujarse la vista previa.
   const diferido = useDeferredValue(contenido)
+  const vacio = !diferido.trim() && !opciones.portada.activa
 
   return (
-    <article className="vista-previa">
-      {diferido.trim()
-        ? <Markdown remarkPlugins={PLUGINS} components={COMPONENTES}>{diferido}</Markdown>
-        : <p className="suave">La vista previa aparecerá aquí.</p>}
+    <article className={cn('vista-previa overflow-y-auto rounded-xl border bg-card px-5 py-6 md:px-8', className)}>
+      {vacio
+        ? <p className="text-sm text-muted-foreground">La vista previa aparecerá aquí.</p>
+        : <DocumentoImpreso titulo={titulo} contenido={diferido} opciones={opciones} separadorPortada={SALTO} />}
     </article>
   )
 }

@@ -1,6 +1,9 @@
+import { Link2, Unlink } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listarClases, listarTareas, obtenerTarea } from '../api.js'
+import { Button } from '@/componentes/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/componentes/ui/select'
 import { useCargar } from '../utils/useCargar.js'
 
 const nada = () => Promise.resolve(null)
@@ -28,25 +31,30 @@ export default function VincularTarea({ cursoId, tareaId, onCambiar }) {
 
   if (!cursoId || !tareaId) {
     return (
-      <button className="boton boton-chico" onClick={() => setEditando(true)}>
-        Vincular a una tarea
-      </button>
+      <div>
+        <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" onClick={() => setEditando(true)}>
+          <Link2 />Vincular a una tarea
+        </Button>
+      </div>
     )
   }
 
   const tarea = vinculada.datos
   return (
-    <div className="vinculo">
-      <span className="suave">Tarea:</span>{' '}
-      {vinculada.cargando && <span className="suave">cargando…</span>}
-      {vinculada.error && <span className="suave">no disponible</span>}
+    <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm">
+      <Link2 className="size-4 text-muted-foreground" aria-hidden="true" />
+      <span className="text-muted-foreground">Tarea:</span>
+      {vinculada.cargando && <span className="text-muted-foreground">cargando…</span>}
+      {vinculada.error && <span className="text-muted-foreground">no disponible</span>}
       {tarea && (
-        <Link to={`/clases/${cursoId}/tareas/${tareaId}`}>
-          {tarea.titulo} <span className="suave">· {tarea.curso}</span>
+        <Link to={`/clases/${cursoId}/tareas/${tareaId}`} className="font-medium underline-offset-4 hover:underline">
+          {tarea.titulo} <span className="font-normal text-muted-foreground">· {tarea.curso}</span>
         </Link>
       )}
-      <button className="boton-texto" onClick={() => setEditando(true)}>Cambiar</button>
-      <button className="boton-texto" onClick={() => onCambiar({ cursoId: null, tareaId: null })}>Quitar</button>
+      <Button variant="link" size="sm" className="h-auto px-1.5" onClick={() => setEditando(true)}>Cambiar</Button>
+      <Button variant="link" size="sm" className="h-auto px-1.5 text-muted-foreground" onClick={() => onCambiar({ cursoId: null, tareaId: null })}>
+        <Unlink />Quitar
+      </Button>
     </div>
   )
 }
@@ -59,40 +67,33 @@ function SelectorTarea({ cursoInicial, onElegir, onCancelar }) {
 
   return (
     <form
-      className="vinculo"
+      className="flex flex-wrap items-center gap-2"
       onSubmit={(e) => {
         e.preventDefault()
         if (curso && tarea) onElegir(curso, tarea)
       }}
     >
-      <label className="sr-only" htmlFor="vinculo-clase">Clase</label>
-      <select
-        id="vinculo-clase"
-        value={curso}
-        onChange={(e) => {
-          setCurso(e.target.value)
-          setTarea('')
-        }}
-        disabled={clases.cargando}
-      >
-        <option value="">{clases.cargando ? 'Cargando clases…' : 'Elige una clase'}</option>
-        {clases.datos?.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-      </select>
+      <Select value={curso} onValueChange={(valor) => { setCurso(valor); setTarea('') }} disabled={clases.cargando}>
+        <SelectTrigger size="sm" className="w-52" aria-label="Clase">
+          <SelectValue placeholder={clases.cargando ? 'Cargando clases…' : 'Elige una clase'} />
+        </SelectTrigger>
+        <SelectContent>
+          {clases.datos?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nombre}</SelectItem>)}
+        </SelectContent>
+      </Select>
 
-      <label className="sr-only" htmlFor="vinculo-tarea">Tarea</label>
-      <select
-        id="vinculo-tarea"
-        value={tarea}
-        onChange={(e) => setTarea(e.target.value)}
-        disabled={!curso || tareas.cargando}
-      >
-        <option value="">{curso && tareas.cargando ? 'Cargando tareas…' : 'Elige una tarea'}</option>
-        {tareas.datos?.map((t) => <option key={t.id} value={t.id}>{t.titulo}</option>)}
-      </select>
+      <Select value={tarea} onValueChange={setTarea} disabled={!curso || tareas.cargando}>
+        <SelectTrigger size="sm" className="w-60" aria-label="Tarea">
+          <SelectValue placeholder={curso && tareas.cargando ? 'Cargando tareas…' : 'Elige una tarea'} />
+        </SelectTrigger>
+        <SelectContent>
+          {tareas.datos?.map((t) => <SelectItem key={t.id} value={t.id}>{t.titulo}</SelectItem>)}
+        </SelectContent>
+      </Select>
 
-      <button className="boton boton-chico boton-primario" type="submit" disabled={!curso || !tarea}>Vincular</button>
-      <button className="boton-texto" type="button" onClick={onCancelar}>Cancelar</button>
-      {(clases.error || tareas.error) && <span className="texto-error">No se pudo cargar Classroom.</span>}
+      <Button type="submit" size="sm" disabled={!curso || !tarea}>Vincular</Button>
+      <Button type="button" size="sm" variant="ghost" onClick={onCancelar}>Cancelar</Button>
+      {(clases.error || tareas.error) && <span className="text-sm text-destructive">No se pudo cargar Classroom.</span>}
     </form>
   )
 }

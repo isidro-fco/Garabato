@@ -1,8 +1,22 @@
-import { Link, useParams } from 'react-router-dom'
+import { ExternalLink } from 'lucide-react'
+import { useParams } from 'react-router-dom'
 import { listarTareas, obtenerClase } from '../api.js'
-import { Cargando, MensajeError } from '../componentes/Estado.jsx'
+import { Cargando, Encabezado, MensajeError, Migas, Vacio } from '../componentes/Estado.jsx'
 import MosaicoTarea from '../componentes/MosaicoTarea.jsx'
+import { Button } from '@/componentes/ui/button'
 import { useCargar } from '../utils/useCargar.js'
+
+function SeccionTareas({ titulo, tareas }) {
+  if (tareas.length === 0) return null
+  return (
+    <section className="mt-8 space-y-3">
+      <h2 className="text-base font-semibold">{titulo} <span className="font-normal text-muted-foreground">({tareas.length})</span></h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {tareas.map((t) => <MosaicoTarea key={t.id} tarea={t} />)}
+      </div>
+    </section>
+  )
+}
 
 export default function Materia() {
   const { cursoId } = useParams()
@@ -13,54 +27,36 @@ export default function Materia() {
   if (clase.error) return <MensajeError error={clase.error} />
 
   const { nombre, seccion, salon, descripcion, maestros, enlace } = clase.datos
-  const porEntregar = tareas.datos?.filter((t) => !t.entregada) ?? []
-  const entregadas = tareas.datos?.filter((t) => t.entregada) ?? []
+  const datos = [
+    seccion,
+    salon && `Salón ${salon}`,
+    maestros.length > 0 && `${maestros.length === 1 ? 'Maestro' : 'Maestros'}: ${maestros.map((m) => m.nombre).join(', ')}`,
+  ].filter(Boolean)
 
   return (
     <>
-      <nav className="migas" aria-label="Ruta">
-        <Link to="/clases">Clases</Link>
-        <span aria-hidden="true">/</span>
-        <span>{nombre}</span>
-      </nav>
-
-      <header className="encabezado">
-        <h1>{nombre}</h1>
-        <div className="datos">
-          {seccion && <span>{seccion}</span>}
-          {salon && <span>Salón {salon}</span>}
-          {maestros.length > 0 && (
-            <span>
-              {maestros.length === 1 ? 'Maestro' : 'Maestros'}: {maestros.map((m) => m.nombre).join(', ')}
-            </span>
-          )}
-        </div>
-        {descripcion && <p style={{ margin: '0.25rem 0 0' }}>{descripcion}</p>}
-        <div className="acciones" style={{ marginTop: '0.5rem' }}>
-          <a className="boton" href={enlace} target="_blank" rel="noreferrer">Abrir en Classroom</a>
-        </div>
-      </header>
+      <Migas items={[['Clases', '/clases'], [nombre]]} />
+      <Encabezado
+        titulo={nombre}
+        descripcion={datos.join(' · ')}
+        accion={(
+          <Button asChild variant="outline">
+            <a href={enlace} target="_blank" rel="noreferrer"><ExternalLink />Abrir en Classroom</a>
+          </Button>
+        )}
+      >
+        {descripcion && <p className="pt-1 text-sm">{descripcion}</p>}
+      </Encabezado>
 
       {tareas.cargando && <Cargando texto="Cargando las tareas…" />}
       {tareas.error && <MensajeError error={tareas.error} />}
-      {tareas.datos?.length === 0 && <p className="mensaje">Esta clase todavía no tiene tareas.</p>}
+      {tareas.datos?.length === 0 && <Vacio>Esta clase todavía no tiene tareas.</Vacio>}
 
-      {porEntregar.length > 0 && (
-        <section className="seccion">
-          <h2>Por entregar ({porEntregar.length})</h2>
-          <div className="rejilla">
-            {porEntregar.map((t) => <MosaicoTarea key={t.id} tarea={t} />)}
-          </div>
-        </section>
-      )}
-
-      {entregadas.length > 0 && (
-        <section className="seccion">
-          <h2>Entregadas ({entregadas.length})</h2>
-          <div className="rejilla">
-            {entregadas.map((t) => <MosaicoTarea key={t.id} tarea={t} />)}
-          </div>
-        </section>
+      {tareas.datos && (
+        <>
+          <SeccionTareas titulo="Por entregar" tareas={tareas.datos.filter((t) => !t.entregada)} />
+          <SeccionTareas titulo="Entregadas" tareas={tareas.datos.filter((t) => t.entregada)} />
+        </>
       )}
     </>
   )

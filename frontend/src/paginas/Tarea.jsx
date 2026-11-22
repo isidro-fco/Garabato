@@ -1,12 +1,20 @@
+import { ExternalLink, FilePlus2, FileText, FileVideo, Link2, ListChecks, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { crearDocumento, listarDocumentos, obtenerTarea } from '../api.js'
-import { Cargando, Etiqueta, MensajeError } from '../componentes/Estado.jsx'
+import { Cargando, Encabezado, Etiqueta, MensajeError, Migas } from '../componentes/Estado.jsx'
+import { Button } from '@/componentes/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/componentes/ui/card'
 import { haceCuanto } from '../utils/fechas.js'
 import { estadoTarea, formatearFecha } from '../utils/tareas.js'
 import { useCargar } from '../utils/useCargar.js'
 
-const TIPOS_MATERIAL = { drive: 'Drive', enlace: 'Enlace', youtube: 'YouTube', formulario: 'Formulario' }
+const MATERIALES = {
+  drive: ['Drive', FileText],
+  enlace: ['Enlace', Link2],
+  youtube: ['YouTube', FileVideo],
+  formulario: ['Formulario', ListChecks],
+}
 
 // Vista de instrucciones de una tarea.
 export default function Tarea() {
@@ -35,67 +43,76 @@ export default function Tarea() {
 
   return (
     <>
-      <nav className="migas" aria-label="Ruta">
-        <Link to="/clases">Clases</Link>
-        <span aria-hidden="true">/</span>
-        <Link to={`/clases/${cursoId}`}>{tarea.curso ?? 'Clase'}</Link>
-        <span aria-hidden="true">/</span>
-        <span>{tarea.titulo}</span>
-      </nav>
-
-      <header className="encabezado">
-        <h1>{tarea.titulo}</h1>
-        <div className="datos" style={{ alignItems: 'center' }}>
+      <Migas items={[['Clases', '/clases'], [tarea.curso ?? 'Clase', `/clases/${cursoId}`], [tarea.titulo]]} />
+      <Encabezado titulo={tarea.titulo}>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm text-muted-foreground">
           <Etiqueta {...estado} />
           <span>Entrega: {formatearFecha(tarea.fechaEntrega)}</span>
           {tarea.puntos != null && <span>{tarea.puntos} puntos</span>}
         </div>
-      </header>
+      </Encabezado>
 
-      <div className="acciones">
-        <button className="boton boton-primario" onClick={nuevoDocumento} disabled={creando}>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={nuevoDocumento} disabled={creando}>
+          {creando ? <Loader2 className="animate-spin" /> : <FilePlus2 />}
           {creando ? 'Creando…' : 'Crear documento para esta tarea'}
-        </button>
-        <a className="boton" href={tarea.enlace} target="_blank" rel="noreferrer">Abrir en Classroom</a>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={tarea.enlace} target="_blank" rel="noreferrer"><ExternalLink />Abrir en Classroom</a>
+        </Button>
       </div>
-      {errorCrear && <div style={{ marginTop: '1rem' }}><MensajeError error={errorCrear} /></div>}
+      {errorCrear && <MensajeError error={errorCrear} className="mt-4" />}
 
-      {documentos.datos?.length > 0 && (
-        <section className="seccion">
-          <h2>Tus documentos para esta tarea</h2>
-          <ul className="lista-documentos">
-            {documentos.datos.map((doc) => (
-              <li key={doc.id}>
-                <Link to={`/documentos/${doc.id}`} className="lista-documentos-enlace">
-                  <span className="lista-documentos-titulo">{doc.titulo}</span>
-                  <span className="suave">Editado {haceCuanto(doc.actualizadoEn)}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <Card>
+          <CardHeader><CardTitle>Instrucciones</CardTitle></CardHeader>
+          <CardContent className="text-sm leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
+            {tarea.instrucciones || <span className="text-muted-foreground">Esta tarea no tiene instrucciones escritas.</span>}
+          </CardContent>
+        </Card>
 
-      <section className="seccion">
-        <h2>Instrucciones</h2>
-        {tarea.instrucciones
-          ? <div className="instrucciones">{tarea.instrucciones}</div>
-          : <p className="mensaje">Esta tarea no tiene instrucciones escritas.</p>}
-      </section>
+        <div className="space-y-6">
+          {documentos.datos?.length > 0 && (
+            <Card size="sm">
+              <CardHeader><CardTitle>Tus documentos para esta tarea</CardTitle></CardHeader>
+              <CardContent>
+                <ul className="-mx-2 space-y-0.5">
+                  {documentos.datos.map((doc) => (
+                    <li key={doc.id}>
+                      <Link to={`/documentos/${doc.id}`} className="flex flex-col rounded-md px-2 py-1.5 hover:bg-muted">
+                        <span className="truncate text-sm font-medium">{doc.titulo}</span>
+                        <span className="text-xs text-muted-foreground">Editado {haceCuanto(doc.actualizadoEn)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
-      {tarea.materiales.length > 0 && (
-        <section className="seccion">
-          <h2>Materiales</h2>
-          <ul className="lista-simple">
-            {tarea.materiales.map((m, i) => (
-              <li key={i}>
-                <a href={m.enlace} target="_blank" rel="noreferrer">{m.titulo || m.enlace}</a>
-                <span className="suave"> · {TIPOS_MATERIAL[m.tipo]}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+          {tarea.materiales.length > 0 && (
+            <Card size="sm">
+              <CardHeader><CardTitle>Materiales</CardTitle></CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {tarea.materiales.map((m, i) => {
+                    const [tipo, Icono] = MATERIALES[m.tipo] ?? ['Material', Link2]
+                    return (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <Icono className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <span className="min-w-0">
+                          <a href={m.enlace} target="_blank" rel="noreferrer" className="break-words underline-offset-4 hover:underline">{m.titulo || m.enlace}</a>
+                          <span className="text-muted-foreground"> · {tipo}</span>
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </>
   )
 }

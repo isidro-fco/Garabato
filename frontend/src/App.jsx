@@ -1,4 +1,6 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { Cargando } from './componentes/Estado.jsx'
 import RutaPrivada from './componentes/RutaPrivada.jsx'
 import Clases from './paginas/Clases.jsx'
 import Configuracion from './paginas/Configuracion.jsx'
@@ -8,6 +10,9 @@ import Login from './paginas/Login.jsx'
 import Materia from './paginas/Materia.jsx'
 import MisDocumentos from './paginas/MisDocumentos.jsx'
 import Tarea from './paginas/Tarea.jsx'
+
+// Paged.js es pesado: solo se descarga al exportar.
+const Imprimir = lazy(() => import('./paginas/Imprimir.jsx'))
 
 export default function App() {
   return (
@@ -22,6 +27,12 @@ export default function App() {
           <Route path="/documentos" element={<MisDocumentos />} />
           <Route path="/documentos/:docId" element={<Editor />} />
           <Route path="/configuracion" element={<Configuracion />} />
+        </Route>
+        <Route element={<RutaPrivada conBarra={false} />}>
+          <Route
+            path="/documentos/:docId/imprimir"
+            element={<Suspense fallback={<Cargando className="m-8" />}><Imprimir /></Suspense>}
+          />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

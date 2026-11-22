@@ -58,7 +58,7 @@ export function useAutoguardado(doc, retraso = 1500) {
   // Última versión confirmada por el servidor; sirve para validar el respaldo local.
   const base = useRef(doc.actualizadoEn)
 
-  const { cambiar, guardarAhora } = useMemo(() => {
+  const { cambiar, guardarAhora, vaciar } = useMemo(() => {
     function programar(ms) {
       clearTimeout(temporizador.current)
       temporizador.current = setTimeout(guardar, ms)
@@ -98,7 +98,20 @@ export function useAutoguardado(doc, retraso = 1500) {
       programar(retraso)
     }
 
-    return { cambiar, guardarAhora: guardar }
+    // Guarda ya todo lo pendiente y espera a que termine (por ejemplo, antes de exportar).
+    async function vaciar() {
+      for (let intento = 0; intento < 100 && (enCurso.current || pendiente.current); intento++) {
+        if (enCurso.current) {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        } else {
+          await guardar()
+          if (pendiente.current && !enCurso.current) throw new Error('No se pudo guardar')
+        }
+      }
+      if (enCurso.current || pendiente.current) throw new Error('No se pudo guardar')
+    }
+
+    return { cambiar, guardarAhora: guardar, vaciar }
   }, [docId, retraso])
 
   useEffect(() => {
@@ -133,5 +146,5 @@ export function useAutoguardado(doc, retraso = 1500) {
     }
   }, [docId])
 
-  return { estado, cambiar, guardarAhora }
+  return { estado, cambiar, guardarAhora, vaciar }
 }

@@ -119,10 +119,10 @@ garabato/
 
 ## Fase 5: Personalización y exportación a PDF
 
-- [ ] `OpcionesDocumento.jsx`: formulario de portada (título, materia, maestro, alumno, matrícula, fecha y logo), encabezado, pie de página y numeración (posición y estilo). Todo se guarda en `opciones`.
-- [ ] Rellenar la portada automáticamente con los datos de la clase y del usuario.
-- [ ] `exportarPdf.js`: Paged.js con CSS `@page` para márgenes, encabezados, pies y `counter(page)`, y después `window.print()`.
-- [ ] Hacer que la portada no lleve encabezado ni número de página.
+- [x] `OpcionesDocumento.jsx`: formulario de portada (título, materia, maestro, alumno, matrícula, fecha y logo), encabezado, pie de página y numeración (posición y estilo). Todo se guarda en `opciones`.
+- [x] Rellenar la portada automáticamente con los datos de la clase y del usuario.
+- [x] `exportarPdf.js`: Paged.js con CSS `@page` para márgenes, encabezados, pies y `counter(page)`, y después `window.print()`.
+- [x] Hacer que la portada no lleve encabezado ni número de página.
 
 **Listo cuando:** exportas un PDF con portada, encabezados y páginas numeradas, igual a la vista previa.
 

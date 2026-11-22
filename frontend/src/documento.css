@@ -1,0 +1,69 @@
+/*
+ * Tipografía del documento. La usan la vista previa del editor y el PDF
+ * (exportarPdf.js la carga como texto para Paged.js), así los dos se ven igual.
+ */
+
+.documento {
+  font-family: var(--doc-fuente, 'Times New Roman', Times, serif);
+  font-size: 12pt;
+  line-height: var(--doc-interlineado, 1.5);
+  overflow-wrap: anywhere;
+}
+
+.documento h1, .documento h2, .documento h3, .documento h4 {
+  font-family: inherit;
+  font-weight: bold;
+  line-height: 1.25;
+  margin: 1.2em 0 0.5em;
+  break-after: avoid;
+}
+.documento h1 { font-size: 18pt; }
+.documento h2 { font-size: 15pt; }
+.documento h3 { font-size: 13pt; }
+.documento h4 { font-size: 12pt; }
+.doc-cuerpo > :first-child { margin-top: 0; }
+
+.documento p, .documento ul, .documento ol, .documento blockquote, .documento pre, .documento table {
+  margin: 0 0 0.9em;
+}
+.documento p { text-align: justify; orphans: 3; widows: 3; }
+.documento ul, .documento ol { padding-left: 1.5em; }
+/* Tailwind quita las viñetas y el subrayado: el documento los necesita. */
+.documento ul { list-style: disc; }
+.documento ol { list-style: decimal; }
+.documento ul ul { list-style: circle; }
+.documento li:has(> input[type='checkbox']) { list-style: none; margin-left: -1.2em; }
+.documento strong { font-weight: bold; }
+.documento em { font-style: italic; }
+.documento img { display: inline-block; }
+.documento li > input[type='checkbox'] { margin-right: 0.4em; }
+.documento blockquote { margin-left: 0; padding-left: 1em; border-left: 3px solid var(--border, #ddd); color: var(--muted-foreground, #555); }
+.documento code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; background: var(--muted, #f4f4f2); padding: 0.1em 0.35em; border-radius: 4px; }
+.documento pre { background: var(--muted, #f4f4f2); padding: 0.8em 1em; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+.documento pre code { background: none; padding: 0; }
+.documento table { border-collapse: collapse; max-width: 100%; break-inside: avoid; }
+.documento tr, .documento pre, .documento blockquote, .documento img { break-inside: avoid; }
+.documento th, .documento td { border: 1px solid var(--border, #ccc); padding: 0.35em 0.7em; text-align: left; }
+.documento img { max-width: 100%; }
+.documento hr { border: none; border-top: 1px solid var(--border, #ccc); margin: 1.5em 0; }
+.documento a { color: inherit; text-decoration: underline; }
+
+/* --- Portada --- */
+
+.portada {
+  height: var(--doc-alto-util, 22cm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  break-after: page;
+}
+.portada-logo { max-height: 3.2cm; max-width: 7cm; object-fit: contain; margin-bottom: 0.6cm; }
+.portada-institucion { font-size: 14pt; font-weight: bold; margin: 0; }
+.portada p, .portada h1 { text-align: center; }
+.portada-centro { flex: 1; align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: 0.4cm; }
+.portada-titulo { font-size: 22pt; margin: 0; line-height: 1.2; }
+.portada-materia { font-size: 14pt; margin: 0; }
+.portada-datos { margin: 0 0 1cm; display: grid; gap: 0.15cm; font-size: 12pt; }
+.portada-datos p { margin: 0; text-align: center; }
+.portada-fecha { margin: 0; font-size: 12pt; }

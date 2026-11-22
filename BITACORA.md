@@ -111,3 +111,28 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome automatizada: un solo guardado por ráfaga de escritura, texto conservado al recargar, vínculos, lista y vista de celular.
 
 **Resultado:** escribes, cierras la pestaña, vuelves y el documento sigue ahí. ✅
+
+---
+
+## Iteración 6 — Fase 5: Personalización y PDF, y migración a shadcn/ui (22 nov 2026)
+
+**Fase 5**
+- `OpcionesDocumento.jsx`: portada (título, institución, materia, maestro, alumno, matrícula, fecha y logo), encabezado, pie, numeración (posición y estilo) y formato (hoja, fuente e interlineado). Todo se guarda en `opciones`.
+- La portada se llena sola la primera vez con el usuario y la clase vinculada; matrícula, institución y logo se recuerdan en `localStorage`. El logo se reduce a 600 px.
+- `DocumentoImpreso.jsx` y `documento.css`: la misma tipografía en la vista previa y en el PDF.
+- `exportarPdf.js` + `Imprimir.jsx`: Paged.js con CSS `@page` (encabezado, pie y `counter(page)`); la portada usa una página con nombre sin encabezado ni número, y la numeración empieza en 1 después de ella salvo que se elija contarla.
+- "Exportar PDF" guarda lo pendiente, abre la vista de impresión en otra pestaña y lanza `window.print()`.
+
+**Interfaz con shadcn/ui**
+- Tailwind CSS v4 + shadcn/ui (Button, Card, Badge, Select, Switch, Checkbox, Tabs, Sheet, AlertDialog, Avatar…) e íconos de lucide; se eliminó `estilos.css`.
+- Eliminar un documento pide confirmación con un diálogo; en celular las opciones del editor se abren en una hoja lateral.
+- Modo oscuro según el sistema.
+
+**Backend**
+- Fastify ahora responde 400 a campos desconocidos (`removeAdditional: false`) en lugar de descartarlos en silencio.
+
+**Pruebas**
+- PDFs reales generados en Chrome: portada sin encabezado ni número, numeración desde 1, variantes A4/Arial/romanos, logo incluido.
+- Prueba automatizada de la interfaz nueva: autoguardado, opciones, exportar, vincular, eliminar, modo oscuro y celular sin desbordamiento.
+
+**Resultado:** exportas un PDF con portada, encabezados y páginas numeradas, igual a la vista previa. ✅
