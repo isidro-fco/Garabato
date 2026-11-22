@@ -168,6 +168,20 @@ export function listarTareas(usuarioId, cursoId) {
   });
 }
 
+export function obtenerTarea(usuarioId, cursoId, tareaId) {
+  return conClassroom(usuarioId, async (cr) => {
+    const [{ data: curso }, { data: tarea }, entregas] = await Promise.all([
+      cr.courses.get({ id: cursoId }),
+      cr.courses.courseWork.get({ courseId: cursoId, id: tareaId }),
+      todasLasPaginas(
+        (p) => cr.courses.courseWork.studentSubmissions.list({ ...p, courseId: cursoId, courseWorkId: tareaId, userId: 'me' }),
+        'studentSubmissions',
+      ),
+    ]);
+    return aTarea(tarea, curso, entregas[0]);
+  });
+}
+
 // Tareas con fecha de entrega que aún no se entregan, de todas las clases.
 export function listarPendientes(usuarioId, log) {
   return conClassroom(usuarioId, async (cr) => {

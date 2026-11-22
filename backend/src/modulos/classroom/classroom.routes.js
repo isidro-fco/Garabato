@@ -1,4 +1,11 @@
-import { ErrorClassroom, listarClases, listarPendientes, listarTareas, obtenerClase } from './classroom.service.js';
+import {
+  ErrorClassroom,
+  listarClases,
+  listarPendientes,
+  listarTareas,
+  obtenerClase,
+  obtenerTarea,
+} from './classroom.service.js';
 
 export default async function classroomRoutes(app) {
   app.addHook('preHandler', app.requireAuth);
@@ -18,6 +25,9 @@ export default async function classroomRoutes(app) {
   app.get('/api/clases/:id', (request) => obtenerClase(request.usuarioId, request.params.id));
 
   app.get('/api/clases/:id/tareas', (request) => listarTareas(request.usuarioId, request.params.id));
+
+  app.get('/api/clases/:id/tareas/:tareaId', (request) =>
+    obtenerTarea(request.usuarioId, request.params.id, request.params.tareaId));
 
   app.get('/api/tareas/pendientes', (request) => listarPendientes(request.usuarioId, request.log));
 }

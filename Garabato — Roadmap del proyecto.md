@@ -100,11 +100,11 @@ garabato/
 
 ## Fase 3: Navegación y vistas de clases (frontend)
 
-- [ ] Layout con `BarraLateral.jsx` (Inicio, Clases, Configuración y Cerrar sesión).
-- [ ] `api.js` con todas las llamadas al backend.
-- [ ] `Clases.jsx`: lista de materias.
-- [ ] `Materia.jsx`: información general y mosaicos de tareas (`MosaicoTarea.jsx`).
-- [ ] Vista de instrucciones de la tarea, con un botón "Crear documento para esta tarea".
+- [x] Layout con `BarraLateral.jsx` (Inicio, Clases, Configuración y Cerrar sesión).
+- [x] `api.js` con todas las llamadas al backend.
+- [x] `Clases.jsx`: lista de materias.
+- [x] `Materia.jsx`: información general y mosaicos de tareas (`MosaicoTarea.jsx`).
+- [x] Vista de instrucciones de la tarea, con un botón "Crear documento para esta tarea".
 
 **Listo cuando:** puedes navegar Clases → Materia → Tarea con tus datos reales.
 

@@ -67,3 +67,26 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Errores traducidos con `codigo`: `reconectar` (401), `sin_permiso` (403), `no_encontrado` (404), `limite` (503).
 
 **Resultado:** rutas de Classroom listas para el frontend. ✅
+
+---
+
+## Iteración 4 — Fase 3: Navegación y vistas de clases (22 nov 2026)
+
+**Frontend**
+- `estilos.css` con estilo minimalista (variables de color, modo oscuro y diseño responsivo).
+- `BarraLateral.jsx`: Inicio, Clases, Configuración, usuario y Cerrar sesión; en celular pasa a barra superior.
+- `api.js` con todas las llamadas; si la sesión o la conexión con Google vence, regresa al login con un mensaje.
+- `Clases.jsx`: tarjetas de materias.
+- `Materia.jsx`: información del curso, maestros y mosaicos de tareas separados en "Por entregar" y "Entregadas".
+- `MosaicoTarea.jsx` con fecha en hora local y estado (Pendiente, Atrasada, Entregada, Entregada tarde, Sin fecha).
+- `Tarea.jsx`: instrucciones, materiales y botón "Crear documento para esta tarea" (abre `/documentos/nuevo?curso=&tarea=`).
+- Páginas provisionales: `Editor.jsx` (fase 4) y `Configuracion.jsx` (fase 6).
+- Utilidades `useCargar.js` y `tareas.js`; componentes de carga y error en `Estado.jsx`.
+
+**Backend**
+- `GET /api/clases/:id/tareas/:tareaId` para la vista de instrucciones.
+
+**Otros**
+- Se quitó la línea de coautor de los commits anteriores y se desactivó en `.claude/settings.local.json` (ignorado por git).
+
+**Resultado:** se navega Clases → Materia → Tarea con datos reales. ✅
