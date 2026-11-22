@@ -5,8 +5,8 @@
   "buildCommand": "npx --yes pnpm@12.4.1 run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/:ruta*", "destination": "https://garabato-api.onrender.com/api/:ruta*" },
-    { "source": "/auth/:ruta*", "destination": "https://garabato-api.onrender.com/auth/:ruta*" },
+    { "source": "/api/:ruta*", "destination": "https://garabato-api-brzf.onrender.com/api/:ruta*" },
+    { "source": "/auth/:ruta*", "destination": "https://garabato-api-brzf.onrender.com/auth/:ruta*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -22,7 +22,7 @@ await app.register(classroomRoutes);
 await app.register(documentosRoutes);
 await app.register(horariosRoutes);
 
-app.get('/api/salud', async () => ({ ok: true }));
+app.get('/api/health', async () => ({ ok: true }));
 
 app.addHook('onClose', () => pool.end());
 
