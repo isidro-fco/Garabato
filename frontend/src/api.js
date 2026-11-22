@@ -25,6 +25,15 @@ async function pedir(ruta, opciones = {}) {
   return datos
 }
 
+function enviar(ruta, method, cuerpo, opciones = {}) {
+  return pedir(ruta, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cuerpo),
+    ...opciones,
+  })
+}
+
 const id = (valor) => encodeURIComponent(valor)
 
 // --- Sesión ---
@@ -39,3 +48,16 @@ export const obtenerClase = (cursoId) => pedir(`/api/clases/${id(cursoId)}`)
 export const listarTareas = (cursoId) => pedir(`/api/clases/${id(cursoId)}/tareas`)
 export const obtenerTarea = (cursoId, tareaId) => pedir(`/api/clases/${id(cursoId)}/tareas/${id(tareaId)}`)
 export const listarPendientes = () => pedir('/api/tareas/pendientes')
+
+// --- Documentos ---
+// filtros: { cursoId, tareaId } opcionales
+export function listarDocumentos(filtros = {}) {
+  const params = new URLSearchParams(Object.entries(filtros).filter(([, v]) => v))
+  return pedir(`/api/documentos${params.size ? `?${params}` : ''}`)
+}
+export const obtenerDocumento = (docId) => pedir(`/api/documentos/${id(docId)}`)
+export const crearDocumento = (datos = {}) => enviar('/api/documentos', 'POST', datos)
+// keepalive: la petición sigue aunque se cierre la pestaña (máximo 64 KB).
+export const actualizarDocumento = (docId, cambios, { keepalive = false } = {}) =>
+  enviar(`/api/documentos/${id(docId)}`, 'PATCH', cambios, { keepalive })
+export const eliminarDocumento = (docId) => pedir(`/api/documentos/${id(docId)}`, { method: 'DELETE' })

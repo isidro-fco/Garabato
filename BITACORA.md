@@ -90,3 +90,24 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Se quitó la línea de coautor de los commits anteriores y se desactivó en `.claude/settings.local.json` (ignorado por git).
 
 **Resultado:** se navega Clases → Materia → Tarea con datos reales. ✅
+
+---
+
+## Iteración 5 — Fase 4: Editor Markdown (22 nov 2026)
+
+**Backend**
+- Módulo `documentos/`: `GET /api/documentos` (filtros `cursoId` y `tareaId`), `GET /api/documentos/:id`, `POST`, `PATCH` parcial y `DELETE`.
+- Todas las consultas filtran por el usuario de la sesión; límite de 4 MB por petición.
+
+**Frontend**
+- `Editor.jsx`: título editable, `textarea` con Markdown y `VistaPrevia.jsx` (`react-markdown` + `remark-gfm`); pestañas en celular.
+- `useAutoguardado.js`: guarda 1.5 s después de dejar de escribir, sin guardados simultáneos, reintenta si falla, manda lo pendiente con `keepalive` al cerrar y guarda un respaldo en `localStorage` por si la petición no alcanza a llegar.
+- `MisDocumentos.jsx`: lista con materia y última edición, crear y eliminar.
+- `VincularTarea.jsx`: vincular, cambiar o quitar la tarea del documento.
+- La vista de tarea crea documentos ya vinculados y muestra los existentes.
+
+**Pruebas**
+- CRUD contra la base `dev` con usuarios temporales (incluye que un usuario no vea documentos de otro).
+- Prueba en Chrome automatizada: un solo guardado por ráfaga de escritura, texto conservado al recargar, vínculos, lista y vista de celular.
+
+**Resultado:** escribes, cierras la pestaña, vuelves y el documento sigue ahí. ✅

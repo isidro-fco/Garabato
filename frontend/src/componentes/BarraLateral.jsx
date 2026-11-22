@@ -16,6 +16,7 @@ export default function BarraLateral({ usuario }) {
       <nav className="barra-nav" aria-label="Principal">
         <NavLink to="/" end>Inicio</NavLink>
         <NavLink to="/clases">Clases</NavLink>
+        <NavLink to="/documentos">Documentos</NavLink>
         <NavLink to="/configuracion">Configuración</NavLink>
       </nav>
 

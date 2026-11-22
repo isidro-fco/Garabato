@@ -6,6 +6,7 @@ import Editor from './paginas/Editor.jsx'
 import Inicio from './paginas/Inicio.jsx'
 import Login from './paginas/Login.jsx'
 import Materia from './paginas/Materia.jsx'
+import MisDocumentos from './paginas/MisDocumentos.jsx'
 import Tarea from './paginas/Tarea.jsx'
 
 export default function App() {
@@ -18,7 +19,8 @@ export default function App() {
           <Route path="/clases" element={<Clases />} />
           <Route path="/clases/:cursoId" element={<Materia />} />
           <Route path="/clases/:cursoId/tareas/:tareaId" element={<Tarea />} />
-          <Route path="/documentos/nuevo" element={<Editor />} />
+          <Route path="/documentos" element={<MisDocumentos />} />
+          <Route path="/documentos/:docId" element={<Editor />} />
           <Route path="/configuracion" element={<Configuracion />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

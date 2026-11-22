@@ -110,10 +110,10 @@ garabato/
 
 ## Fase 4: Editor Markdown (el núcleo)
 
-- [ ] Backend: CRUD `/api/documentos` (listar, obtener, crear, actualizar y eliminar).
-- [ ] `Editor.jsx`: un `textarea` a la izquierda y `VistaPrevia.jsx` con `react-markdown` a la derecha.
-- [ ] Autoguardado con debounce: guardar después de 1–2 segundos sin escribir.
-- [ ] Lista de "Mis documentos" y la opción de vincular un documento a una tarea.
+- [x] Backend: CRUD `/api/documentos` (listar, obtener, crear, actualizar y eliminar).
+- [x] `Editor.jsx`: un `textarea` a la izquierda y `VistaPrevia.jsx` con `react-markdown` a la derecha.
+- [x] Autoguardado con debounce: guardar después de 1–2 segundos sin escribir.
+- [x] Lista de "Mis documentos" y la opción de vincular un documento a una tarea.
 
 **Listo cuando:** escribes, cierras la pestaña, vuelves y el documento sigue ahí.
 
