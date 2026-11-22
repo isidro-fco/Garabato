@@ -67,12 +67,12 @@ garabato/
 
 ## Fase 0: Preparación
 
-- [ ] Crear el repositorio `garabato/` en GitHub con las carpetas `backend/` y `frontend/`, un `.gitignore` y un `README.md`.
+- [x] Crear el repositorio `garabato/` en GitHub con las carpetas `backend/` y `frontend/`, un `.gitignore` y un `README.md`.
 - [x] Backend: `npm init`, `"type": "module"`, instalar `fastify` y `dotenv`, y crear la ruta `GET /api/salud` que responda `{ ok: true }`.
 - [x] Frontend: `npm create vite@latest frontend -- --template react`, instalar `react-router-dom` y configurar el proxy en `vite.config.js`.
-- [ ] Crear el proyecto en Neon con dos bases de datos: `dev` y `prod`.
-- [ ] En Google Cloud (proyecto Garabato): activar la Classroom API, configurar la pantalla de consentimiento en modo Testing y agregar los correos de prueba.
-- [ ] Crear las credenciales OAuth con la redirección `http://localhost:5173/auth/callback`.
+- [x] Crear el proyecto en Neon con dos bases de datos: `dev` y `prod`.
+- [x] En Google Cloud (proyecto Garabato): activar la Classroom API, configurar la pantalla de consentimiento en modo Testing y agregar los correos de prueba.
+- [x] Crear las credenciales OAuth con la redirección `http://localhost:5173/auth/callback`.
 
 **Listo cuando:** el frontend muestra el `{ ok: true }` que responde el backend.
 

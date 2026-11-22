@@ -24,4 +24,10 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 
 **Resultado:** el frontend muestra el `{ ok: true }` del backend. ✅
 
-**Pendiente (manual):** crear las bases `dev` y `prod` en Neon; en Google Cloud activar la Classroom API, configurar la pantalla de consentimiento (Testing) con los correos de prueba y crear las credenciales OAuth con la redirección `http://localhost:5173/auth/callback`.
+**Configuración externa (completada)**
+- Repositorio en GitHub (`isidro-fco/Garabato`) con `backend/`, `frontend/`, `.gitignore` y `README.md`.
+- Neon: bases `garabato_dev` y `garabato_prod`. El `.env` local usa solo `DATABASE_URL` (dev); la de prod irá en Render.
+- Google Cloud: Classroom API, pantalla de consentimiento en Testing y credenciales OAuth con redirección `http://localhost:5173/auth/callback`.
+- `backend/.env` con `PORT`, `DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `GOOGLE_REDIRECT_URI`.
+
+**Fase 0 completa.** ✅
