@@ -138,9 +138,9 @@ garabato/
 
 ## Fase 7: Formateador APA
 
-- [ ] `utils/apa.js`: formulario por tipo de fuente (libro, artículo y página web) que genera la referencia en formato APA 7.
-- [ ] Botón en el editor que inserta la cita en el texto y la referencia en una sección "Referencias".
-- [ ] Ordenar las referencias alfabéticamente y aplicar sangría francesa en el PDF.
+- [x] `utils/apa.js`: formulario por tipo de fuente (libro, artículo y página web) que genera la referencia en formato APA 7.
+- [x] Botón en el editor que inserta la cita en el texto y la referencia en una sección "Referencias".
+- [x] Ordenar las referencias alfabéticamente y aplicar sangría francesa en el PDF.
 
 **Listo cuando:** agregas tres fuentes y el PDF sale con su sección de referencias bien formateada.
 

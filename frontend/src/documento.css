@@ -67,3 +67,14 @@
 .portada-datos { margin: 0 0 1cm; display: grid; gap: 0.15cm; font-size: 12pt; }
 .portada-datos p { margin: 0; text-align: center; }
 .portada-fecha { margin: 0; font-size: 12pt; }
+
+/* --- Referencias (APA 7): título centrado y sangría francesa de 1.27 cm --- */
+
+.referencias.nueva-pagina { break-before: page; }
+.referencias h1 { text-align: center; }
+.referencias p {
+  text-align: left;
+  padding-left: 1.27cm;
+  text-indent: -1.27cm;
+  overflow-wrap: anywhere;
+}

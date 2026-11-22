@@ -1,5 +1,6 @@
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { listaReferencias } from '../utils/apa.js'
 import { variablesDocumento } from '../utils/opcionesDocumento.js'
 
 // remark-gfm agrega tablas, listas de tareas, tachado y enlaces automáticos.
@@ -9,22 +10,38 @@ const COMPONENTES = {
   a: (props) => <a {...props} target="_blank" rel="noreferrer" />,
 }
 
-// El documento tal como se imprime: portada (si está activa) y el contenido.
-// Lo usan la vista previa del editor y el PDF.
-export default function DocumentoImpreso({ titulo, contenido, opciones, separadorPortada = null }) {
-  const { portada } = opciones
+// En una referencia solo se permiten cursivas y enlaces (los genera apa.js).
+const ELEMENTOS_REFERENCIA = ['p', 'em', 'a']
+
+// El documento tal como se imprime: portada (si está activa), el contenido y
+// las referencias. Lo usan la vista previa del editor y el PDF.
+// separador: lo que marca un salto de página en la vista previa.
+export default function DocumentoImpreso({ titulo, contenido, opciones, separador = null }) {
+  const { portada, referencias } = opciones
+  const fuentes = listaReferencias(referencias.fuentes)
 
   return (
     <div className="documento" style={variablesDocumento(opciones)}>
       {portada.activa && (
         <>
           <Portada portada={portada} tituloDocumento={titulo} />
-          {separadorPortada}
+          {separador}
         </>
       )}
       <div className="doc-cuerpo">
         <Markdown remarkPlugins={PLUGINS} components={COMPONENTES}>{contenido}</Markdown>
       </div>
+      {fuentes.length > 0 && (
+        <>
+          {referencias.nuevaPagina && separador}
+          <section className={referencias.nuevaPagina ? 'referencias nueva-pagina' : 'referencias'}>
+            <h1>Referencias</h1>
+            {fuentes.map(({ id, markdown }) => (
+              <Markdown key={id} allowedElements={ELEMENTOS_REFERENCIA} unwrapDisallowed components={COMPONENTES}>{markdown}</Markdown>
+            ))}
+          </section>
+        </>
+      )}
     </div>
   )
 }

@@ -161,3 +161,22 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome: calendario, colores, atrasadas, clics, captura de horario, choques, modo oscuro y celular.
 
 **Resultado:** la pantalla de inicio muestra tus entregas y tu horario semanal. ✅
+
+---
+
+## Iteración 8 — Fase 7: Formateador APA (22 nov 2026)
+
+**Frontend**
+- `utils/apa.js`: referencias y citas en APA 7 (adaptación al español) para libro, artículo de revista y página web:
+  - Autores: iniciales, "y" entre los dos últimos, "et al." en citas de tres o más, regla de 21 o más autores, organizaciones como autor.
+  - Fechas: "s.f." sin fecha, día y mes en páginas web, letras para el mismo autor y año (1975a, 1975b).
+  - Edición ("2.ª ed."), volumen en cursivas con el número entre paréntesis, rangos de páginas con guion largo, DOI como `https://doi.org/…`.
+  - Orden alfabético por autor (Á junto con A), sin fecha primero.
+- `FuentesApa.jsx`: panel para agregar, editar y borrar fuentes con vista previa de la referencia; botones para insertar la cita parentética o narrativa (con página opcional) donde está el cursor.
+- `DocumentoImpreso.jsx`: sección "Referencias" generada al final, en página nueva (opcional), título centrado y sangría francesa de 1.27 cm. Las fuentes se guardan en `opciones.referencias`.
+
+**Pruebas**
+- 23 casos del formateador con ejemplos de APA 7.
+- Prueba en Chrome: agregar tres fuentes, citar en el cursor, editar, borrar, celular y PDF con la sección de referencias.
+
+**Resultado:** agregas tres fuentes y el PDF sale con su sección de referencias bien formateada. ✅

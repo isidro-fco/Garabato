@@ -1,8 +1,9 @@
-import { ArrowLeft, Check, CircleAlert, FileDown, Loader2, Settings2, X } from 'lucide-react'
+import { ArrowLeft, BookMarked, Check, CircleAlert, FileDown, Loader2, Settings2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { obtenerDocumento } from '../api.js'
 import { Cargando, MensajeError } from '../componentes/Estado.jsx'
+import FuentesApa from '../componentes/FuentesApa.jsx'
 import OpcionesDocumento from '../componentes/OpcionesDocumento.jsx'
 import VincularTarea from '../componentes/VincularTarea.jsx'
 import VistaPrevia from '../componentes/VistaPrevia.jsx'
@@ -58,7 +59,10 @@ function EditorDocumento({ doc }) {
   const [sinPortada] = useState(() => !inicial.opciones?.portada)
 
   const [vista, setVista] = useState('escribir') // solo en celular
-  const [panelAbierto, setPanelAbierto] = useState(false)
+  const [panel, setPanel] = useState(null) // null | 'opciones' | 'fuentes'
+  const texto = useRef(null)
+  // Dónde estaba el cursor al salir del texto (para insertar citas ahí).
+  const cursor = useRef(null)
   const [exportando, setExportando] = useState(false)
   const [errorExportar, setErrorExportar] = useState(null)
   const { estado, cambiar, vaciar } = useAutoguardado(doc)
@@ -82,6 +86,29 @@ function EditorDocumento({ doc }) {
     return nuevas
   }
 
+  // Inserta una cita donde estaba el cursor (o al final) y deja el cursor después.
+  function insertarCita(cita) {
+    const actual = texto.current?.value ?? contenido
+    const [inicio, fin] = cursor.current ?? [actual.length, actual.length]
+    const antes = actual.slice(0, inicio)
+    const despues = actual.slice(fin)
+    // Espacios para que la cita no quede pegada a una palabra.
+    const insertado = (antes && !/\s$/.test(antes) ? ' ' : '') + cita + (/^[\p{L}\p{N}]/u.test(despues) ? ' ' : '')
+    const nuevo = antes + insertado + despues
+    const posicion = inicio + insertado.length
+    setContenido(nuevo)
+    cambiar({ contenido: nuevo })
+    cursor.current = [posicion, posicion]
+    if (esMovil) {
+      setPanel(null)
+      setVista('escribir')
+    }
+    requestAnimationFrame(() => {
+      texto.current?.focus()
+      texto.current?.setSelectionRange(posicion, posicion)
+    })
+  }
+
   async function exportar() {
     // La pestaña se abre antes de esperar al guardado; si no, el navegador la bloquea.
     const pestana = window.open('', '_blank')
@@ -100,15 +127,36 @@ function EditorDocumento({ doc }) {
     }
   }
 
-  const panel = (
-    <OpcionesDocumento
-      opciones={opciones}
-      onCambiar={cambiarOpciones}
-      cursoId={vinculo.cursoId}
-      usuario={usuario}
-      nuevo={sinPortada}
-    />
-  )
+  const PANELES = {
+    opciones: {
+      titulo: 'Opciones del documento',
+      descripcion: 'Portada, encabezado, pie y formato del PDF.',
+      contenido: (
+        <OpcionesDocumento
+          opciones={opciones}
+          onCambiar={cambiarOpciones}
+          cursoId={vinculo.cursoId}
+          usuario={usuario}
+          nuevo={sinPortada}
+        />
+      ),
+    },
+    fuentes: {
+      titulo: 'Fuentes (APA 7)',
+      descripcion: 'Cita tus fuentes y genera la sección de referencias.',
+      contenido: (
+        <FuentesApa
+          fuentes={opciones.referencias.fuentes}
+          nuevaPagina={opciones.referencias.nuevaPagina}
+          onCambiar={(fuentes) => cambiarOpciones('referencias', { fuentes })}
+          onNuevaPagina={(nuevaPagina) => cambiarOpciones('referencias', { nuevaPagina })}
+          onCitar={insertarCita}
+        />
+      ),
+    },
+  }
+  const abierto = PANELES[panel]
+  const alternar = (nombre) => setPanel((actual) => (actual === nombre ? null : nombre))
 
   return (
     <div className="editor flex gap-4 md:h-[calc(100vh-4rem)]">
@@ -119,7 +167,10 @@ function EditorDocumento({ doc }) {
           </Button>
           <EstadoGuardado estado={estado} />
           <div className="ml-auto flex gap-2">
-            <Button variant={panelAbierto ? 'secondary' : 'outline'} size="sm" aria-expanded={panelAbierto} onClick={() => setPanelAbierto((a) => !a)}>
+            <Button variant={panel === 'fuentes' ? 'secondary' : 'outline'} size="sm" aria-expanded={panel === 'fuentes'} onClick={() => alternar('fuentes')}>
+              <BookMarked />Fuentes
+            </Button>
+            <Button variant={panel === 'opciones' ? 'secondary' : 'outline'} size="sm" aria-expanded={panel === 'opciones'} onClick={() => alternar('opciones')}>
               <Settings2 />Opciones
             </Button>
             <Button size="sm" onClick={exportar} disabled={exportando}>
@@ -162,6 +213,9 @@ function EditorDocumento({ doc }) {
           <label className="sr-only" htmlFor="editor-texto">Contenido en Markdown</label>
           <textarea
             id="editor-texto"
+            ref={texto}
+            onSelect={(e) => { cursor.current = [e.target.selectionStart, e.target.selectionEnd] }}
+            onBlur={(e) => { cursor.current = [e.target.selectionStart, e.target.selectionEnd] }}
             className={cn(
               'min-h-[65vh] resize-none rounded-xl border bg-card px-5 py-4 font-mono text-sm leading-relaxed outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:h-full md:min-h-0',
               vista !== 'escribir' && 'hidden md:block',
@@ -184,23 +238,23 @@ function EditorDocumento({ doc }) {
       </div>
 
       {/* Escritorio: panel al lado, para ver los cambios en la vista previa. Celular: hoja. */}
-      {panelAbierto && !esMovil && (
-        <aside aria-label="Opciones del documento" className="flex w-80 shrink-0 flex-col overflow-hidden rounded-xl border bg-card">
+      {abierto && !esMovil && (
+        <aside aria-label={abierto.titulo} className="flex w-80 shrink-0 flex-col overflow-hidden rounded-xl border bg-card">
           <div className="flex items-center justify-between border-b px-4 py-3">
-            <h2 className="text-sm font-semibold">Opciones del documento</h2>
-            <Button variant="ghost" size="icon-sm" onClick={() => setPanelAbierto(false)} aria-label="Cerrar opciones"><X /></Button>
+            <h2 className="text-sm font-semibold">{abierto.titulo}</h2>
+            <Button variant="ghost" size="icon-sm" onClick={() => setPanel(null)} aria-label="Cerrar panel"><X /></Button>
           </div>
-          <div className="overflow-y-auto px-4 py-4">{panel}</div>
+          <div className="overflow-y-auto px-4 py-4">{abierto.contenido}</div>
         </aside>
       )}
       {esMovil && (
-        <Sheet open={panelAbierto} onOpenChange={setPanelAbierto}>
+        <Sheet open={!!abierto} onOpenChange={(abrir) => !abrir && setPanel(null)}>
           <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-sm">
             <SheetHeader>
-              <SheetTitle>Opciones del documento</SheetTitle>
-              <SheetDescription>Portada, encabezado, pie y formato del PDF.</SheetDescription>
+              <SheetTitle>{abierto?.titulo}</SheetTitle>
+              <SheetDescription>{abierto?.descripcion}</SheetDescription>
             </SheetHeader>
-            <div className="px-4 pb-6">{panel}</div>
+            <div className="px-4 pb-6">{abierto?.contenido}</div>
           </SheetContent>
         </Sheet>
       )}

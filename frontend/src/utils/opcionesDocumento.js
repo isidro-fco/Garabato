@@ -21,6 +21,8 @@ export const OPCIONES_BASE = {
     contarPortada: false, // false: la primera página después de la portada es la 1
   },
   formato: { tamano: 'carta', fuente: 'serif', interlineado: 1.5 },
+  // Fuentes en APA (ver utils/apa.js); la sección "Referencias" se genera al final.
+  referencias: { nuevaPagina: true, fuentes: [] },
 }
 
 // Completa con los valores por defecto lo que falte (documentos viejos o vacíos).
