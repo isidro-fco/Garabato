@@ -78,12 +78,12 @@ garabato/
 
 ## Fase 1: Base de datos y autenticación
 
-- [ ] Hacer `db.js` con `pg` y `crearTablas()`.
-- [ ] Hacer `config.js` y `.env.example`.
-- [ ] Configurar `@fastify/secure-session` y `@fastify/oauth2` con Google.
-- [ ] Crear `/auth/google`, `/auth/callback` (guarda o actualiza el usuario y su refresh token), `/auth/logout` y `/api/yo`.
-- [ ] Crear el decorador `requireAuth`.
-- [ ] Frontend: página `Login.jsx` con el botón "Iniciar sesión con Google" y un componente que proteja las rutas privadas.
+- [x] Hacer `db.js` con `pg` y `crearTablas()`.
+- [x] Hacer `config.js` y `.env.example`.
+- [x] Configurar `@fastify/secure-session` y `@fastify/oauth2` con Google.
+- [x] Crear `/auth/google`, `/auth/callback` (guarda o actualiza el usuario y su refresh token), `/auth/logout` y `/api/yo`.
+- [x] Crear el decorador `requireAuth`.
+- [x] Frontend: página `Login.jsx` con el botón "Iniciar sesión con Google" y un componente que proteja las rutas privadas.
 
 **Listo cuando:** inicias sesión con Google, aparece tu nombre y foto, y al recargar la página sigues con la sesión iniciada.
 

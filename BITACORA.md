@@ -31,3 +31,24 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - `backend/.env` con `PORT`, `DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `GOOGLE_REDIRECT_URI`.
 
 **Fase 0 completa.** ✅
+
+---
+
+## Iteración 2 — Fase 1: Base de datos y autenticación (22 nov 2026)
+
+**Backend**
+- `config.js` valida las variables del `.env` y no arranca si falta alguna; `.env.example` actualizado (incluye `SESSION_SECRET`).
+- `db.js` con `pg` (`sslmode=verify-full` y `enableChannelBinding` para Neon) y `crearTablas()` con `usuarios`, `documentos` y `horarios`.
+- `plugins/auth.js`: sesión con `@fastify/secure-session` (cookie cifrada que guarda solo el id del usuario) y decorador `requireAuth`.
+- `modulos/auth/`: `@fastify/oauth2` con Google (PKCE, `access_type=offline` y `prompt=consent` para obtener el refresh token, scopes de Classroom).
+- Rutas `/auth/google`, `/auth/callback` (crea o actualiza el usuario y conserva el refresh token), `POST /auth/logout` y `/api/yo`.
+
+**Frontend**
+- `api.js` con `obtenerYo`, `cerrarSesion` y la URL de login.
+- `Login.jsx` con el botón "Iniciar sesión con Google" y aviso de error.
+- `RutaPrivada.jsx` redirige a `/login` si no hay sesión.
+- `Inicio.jsx` provisional: nombre, foto, correo y botón de cerrar sesión.
+
+**Resultado:** inicio de sesión con Google funcionando; aparecen nombre y foto y la sesión sigue al recargar. ✅
+
+**Notas:** el refresh token se guarda sin cifrar (revisar antes de producción); `prompt=consent` pide permisos en cada login.
