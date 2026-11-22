@@ -52,3 +52,18 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 **Resultado:** inicio de sesión con Google funcionando; aparecen nombre y foto y la sesión sigue al recargar. ✅
 
 **Notas:** el refresh token se guarda sin cifrar (revisar antes de producción); `prompt=consent` pide permisos en cada login.
+
+---
+
+## Iteración 3 — Fase 2: Integración con Classroom (22 nov 2026)
+
+**Backend**
+- Se usa `@googleapis/classroom` (paquete oficial solo de Classroom, 1.7 MB) en lugar de `googleapis` (246 MB).
+- `classroom.service.js` crea el cliente con el refresh token del usuario y recorre todas las páginas de resultados.
+- `GET /api/clases`: cursos activos del alumno.
+- `GET /api/clases/:id`: información del curso y nombres de los maestros.
+- `GET /api/clases/:id/tareas`: tareas con instrucciones, fecha de entrega (ISO en UTC), puntos, materiales y estado de entrega.
+- `GET /api/tareas/pendientes`: tareas con fecha y sin entregar de todas las clases; si falla un curso se omite.
+- Errores traducidos con `codigo`: `reconectar` (401), `sin_permiso` (403), `no_encontrado` (404), `limite` (503).
+
+**Resultado:** rutas de Classroom listas para el frontend. ✅

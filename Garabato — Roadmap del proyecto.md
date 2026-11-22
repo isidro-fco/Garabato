@@ -89,12 +89,12 @@ garabato/
 
 ## Fase 2: Integración con Classroom (backend)
 
-- [ ] En `classroom.service.js`, crear el cliente de `googleapis` con el refresh token del usuario.
-- [ ] `GET /api/clases`: lista de cursos.
-- [ ] `GET /api/clases/:id`: información del curso y los maestros (`courses.teachers.list`).
-- [ ] `GET /api/clases/:id/tareas`: tareas con fecha de entrega e instrucciones.
-- [ ] `GET /api/tareas/pendientes`: tareas de todas las clases, para el calendario.
-- [ ] Manejar los errores de token vencido o permiso denegado.
+- [x] En `classroom.service.js`, crear el cliente de `googleapis` con el refresh token del usuario.
+- [x] `GET /api/clases`: lista de cursos.
+- [x] `GET /api/clases/:id`: información del curso y los maestros (`courses.teachers.list`).
+- [x] `GET /api/clases/:id/tareas`: tareas con fecha de entrega e instrucciones.
+- [x] `GET /api/tareas/pendientes`: tareas de todas las clases, para el calendario.
+- [x] Manejar los errores de token vencido o permiso denegado.
 
 **Listo cuando:** probando con Thunder Client o Postman ves tus clases y tareas reales. Aquí también es cuando debes probar con la cuenta de UABC.
 
