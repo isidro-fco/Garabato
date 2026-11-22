@@ -180,3 +180,25 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome: agregar tres fuentes, citar en el cursor, editar, borrar, celular y PDF con la sección de referencias.
 
 **Resultado:** agregas tres fuentes y el PDF sale con su sección de referencias bien formateada. ✅
+
+---
+
+## Iteración 9 — Fase 8: Despliegue (22 nov 2026)
+
+**Arquitectura**
+- Frontend en Vercel (`https://garabato-olive.vercel.app`) y API en Render (`https://garabato-api-brzf.onrender.com`), con la base `prod` de Neon.
+- Vercel reenvía `/api` y `/auth` a Render (`frontend/vercel.json`), así que para el navegador todo es el mismo dominio: la cookie de sesión funciona sin CORS.
+
+**Configuración**
+- `render.yaml` (Blueprint): servicio en Ohio, cerca de Neon (us-east-2), health check en `/api/health`, `SESSION_SECRET` generado por Render y el resto de variables capturadas a mano.
+- Ambos proyectos fijan pnpm 12.4.1 (`packageManager`) y Node 24; se quitaron los `package-lock.json`.
+- `config.js` valida que `SESSION_SECRET` sea una llave de 32 bytes.
+- Google Cloud: URI de redirección de producción `https://garabato-olive.vercel.app/auth/callback`.
+- README con la guía de despliegue.
+
+**Problemas resueltos**
+- El login mandaba a `localhost`: la variable `GOOGLE_REDIRECT_URI` de Render tenía la URL local.
+- Los deploys nuevos no quedaban activos: el health check apuntaba a `/api/salud` y la ruta se renombró a `/api/health`.
+- `redirect_uri_mismatch` de Google: faltaba registrar la URI de producción en el cliente OAuth.
+
+**Resultado:** la app funciona en producción con el login de Google. ✅

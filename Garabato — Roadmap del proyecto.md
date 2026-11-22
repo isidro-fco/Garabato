@@ -146,11 +146,11 @@ garabato/
 
 ## Fase 8: Despliegue
 
-- [ ] Neon: usar la base de datos `prod` y copiar su `DATABASE_URL`.
-- [ ] Render: crear un Web Service con raíz en `backend/`, `npm install` como build, `node src/server.js` como comando de inicio, y cargar las variables de entorno.
-- [ ] Vercel: crear el proyecto con raíz en `frontend/` y el `vercel.json` con los rewrites.
-- [ ] Google Cloud: agregar la URI de redirección de producción (`https://…vercel.app/auth/callback`).
-- [ ] Probar todo el flujo en producción: login, clases, documento, PDF y calendario.
+- [x] Neon: usar la base de datos `prod` y copiar su `DATABASE_URL`.
+- [x] Render: crear un Web Service con raíz en `backend/`, pnpm como build (Blueprint en `render.yaml`), `node src/server.js` como comando de inicio, y cargar las variables de entorno.
+- [x] Vercel: crear el proyecto con raíz en `frontend/` y el `vercel.json` con los rewrites.
+- [x] Google Cloud: agregar la URI de redirección de producción (`https://…vercel.app/auth/callback`).
+- [x] Probar todo el flujo en producción: login, clases, documento, PDF y calendario.
 
 **Listo cuando:** alguien de la lista de usuarios de prueba puede usar la app desde su celular.
 
