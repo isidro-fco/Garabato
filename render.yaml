@@ -1,0 +1,27 @@
+# Blueprint de Render: crea el backend (Web Service) con esta configuración.
+# Render → New → Blueprint → elegir este repositorio.
+services:
+  - type: web
+    name: garabato-api
+    runtime: node
+    plan: free
+    region: ohio # misma región que la base de Neon (AWS us-east-2)
+    rootDir: backend
+    buildCommand: npx --yes pnpm@12.4.1 install --frozen-lockfile
+    startCommand: node src/server.js
+    healthCheckPath: /api/salud
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Llave nueva para producción (distinta a la de desarrollo).
+      - key: SESSION_SECRET
+        generateValue: true
+      # Estas se capturan en el panel de Render al crear el Blueprint.
+      - key: DATABASE_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
