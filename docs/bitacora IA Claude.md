@@ -5,7 +5,7 @@ Se incluyen los mensajes del usuario y las respuestas de Claude; las acciones qu
 
 Este archivo se actualiza solo al terminar cada respuesta (hook de Claude Code, `.claude/hooks/exportar-chat.py`).
 
-- Última actualización: 22/11/2026 23:18
+- Última actualización: 22/11/2026 23:40
 - Conversaciones: 3
 
 
@@ -4492,3 +4492,274 @@ Terminé las pruebas en el navegador con tu cuenta real y corregí lo que encont
 ### 🧑 Usuario · 22/11/2026 23:17
 
 has el commit y subelo
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Add bitácora entry, commit and push
+
+</details>
+
+Listo: el commit `ed14951 test: casos límite y correcciones` ya está en GitHub, y tu `master` local quedó igual que el remoto.
+
+- **`docs/BITACORA.md`:** agregué la Iteración 16 con las correcciones, la suite de 38 pruebas y lo que probé en Chrome.
+- **`docs/bitacora IA Claude.md`:** la regeneré antes del commit. El mensaje del color sigue sin aparecer.
+- **Pruebas del backend:** se corren con `npm test` dentro de `backend/`. Usan la base `dev` y borran sus usuarios temporales al terminar.
+
+Sigue pendiente lo de la novena materia, que repite el azul de la primera. Dime si quieres que agregue más colores a la paleta.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:24
+
+sí, corrígelo y agrega las decisiones que faltan
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (3)</summary>
+
+- **Bash** — Check references and read bitácora details
+- **Bash** — Rename diary with correct spelling
+- **Write** — `docs/Diario de Decisiones.md`
+
+</details>
+
+Ya corregí el diario y le agregué las decisiones que faltaban. No hice commit.
+
+**Correcciones**
+- Cambié el nombre del archivo a `docs/Diario de Decisiones.md`.
+- "SSD" ahora dice **SDD (*Spec-Driven Development*)**.
+- Arreglé el ejemplo del editor para que cuente lo que pasó: primero fue un cuadro de texto con vista previa y autoguardado, y después lo cambiaste por el editor en vivo sobre hojas.
+- Uniformé los títulos (`##` y `###`, sin negritas dentro).
+- Agregué al inicio los enlaces a `BITACORA.md` y a `bitacora IA Claude.md`.
+
+Tus dos secciones originales quedaron con tu texto, solo con esos cambios.
+
+**Decisiones nuevas**
+Cada una explica qué decidiste, qué alternativa descartaste y por qué:
+1. Un solo dominio para el frontend y la API (Vercel reenvía las peticiones a Render).
+2. Reintentos y avisos porque Render se duerme en el plan gratuito.
+3. Elegir las materias activas.
+4. Horario pintable en lugar de formulario.
+5. Editor en vivo sobre hojas tamaño carta.
+6. Colores del editor guardados en la cuenta.
+7. Materias que no están en Classroom, con validación de repetidos.
+8. Probar los casos límite, con los errores que encontraron.
+9. Registro del uso de IA.
+
+**Revisa estos "por qué":** algunos los deduje del código y de la bitácora, no de algo que tú me dijeras.
+- Que en Classroom se acumulan clases de semestres anteriores.
+- Que los estudiantes están acostumbrados a un procesador de textos.
+- Que algunos profesores no usan Classroom.
+
+Si tu razón fue otra, cámbiala para que el diario diga lo que tú pensaste.
+
+¿Lo agrego al próximo commit?
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:30
+
+utiliza la imagen que esta en la raiz, modificala para que sea el logo
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (5)</summary>
+
+- **Bash** — Find root image and current logo usage
+- **Bash** — Inspect image and docs folder
+- **Bash** — Check diary file after rename
+- **Read** — `/tmp/claude-1000/-home-isidro-fco-Documentos-Garabato/159342d9-9d48-4f69-9c84-7d7accf82db2/scratchpad/original.png`
+- **Bash** — Inspect index.html and logo spots
+
+</details>
+
+Los favicons actuales (`favicon.svg` e `icons.svg`) son los de la plantilla de Vite. Genero el logo:
+
+<details><summary>Acciones (3)</summary>
+
+- **Bash** — Generate logo and icon sizes
+- **Bash** — Check where logo.webp landed, drop unused 512 png
+- **Read** — `/tmp/claude-1000/-home-isidro-fco-Documentos-Garabato/159342d9-9d48-4f69-9c84-7d7accf82db2/scratchpad/vista-logo.png`
+
+</details>
+
+En los tamaños chicos el gato apenas se distingue. Para el favicon uso un recorte más cerrado, solo la cara:
+
+<details><summary>Acciones (2)</summary>
+
+- **Bash** — Tighter crop for small favicons
+- **Read** — `/tmp/claude-1000/-home-isidro-fco-Documentos-Garabato/159342d9-9d48-4f69-9c84-7d7accf82db2/scratchpad/vista-favicon.png`
+
+</details>
+
+Así se reconoce mejor en la pestaña. Ahora lo pongo en `index.html`, la barra lateral, el login y la bienvenida:
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Wire logo into html and UI, build
+
+</details>
+
+Lo reviso en el navegador, en escritorio, en celular y en el login:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__tabs_context_mcp**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Se ve bien en escritorio y en el login. Reviso el celular, porque ahí la barra superior ahora también lleva el logo:
+
+<details><summary>Acciones (2)</summary>
+
+- **ToolSearch**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+La ventana no se dejó achicar, probablemente porque está maximizada. Para simular el celular, cargo la app dentro de un iframe de 390 px:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__javascript_tool**
+- **mcp__claude-in-chrome__computer**
+
+</details>
+
+En el celular, el logo queda a la izquierda de la barra superior y nada se desborda. Cierro la pestaña:
+
+<details><summary>Acciones (1)</summary>
+
+- **mcp__claude-in-chrome__tabs_close_mcp**
+
+</details>
+
+El gato ya es el logo de Garabato. Lo revisé en el navegador en escritorio, en celular y en el login. No hice commit.
+
+**Cómo lo adapté**
+- **Logo principal:** recorté la cabeza completa con las orejas y le di forma de cuadro con esquinas redondeadas, como ícono de app. Subí un poco el contraste y el color.
+- **Favicon:** en la pestaña uso un recorte más cerrado, solo ojos, nariz y bigotes. A 16 px la cabeza completa no se distinguía.
+
+**Dónde aparece**
+- **Pestaña del navegador:** `favicon.ico` (16, 32 y 48 px) y `favicon-32.png`.
+- **Pantalla de inicio en iPhone y Android:** `apple-touch-icon.png` (180 px) y `logo-192.png`.
+- **Dentro de la app:** `logo.webp` (256 px, 20 KB):
+  - Barra lateral, junto a "Garabato". En el celular ahora también se ve en la barra superior.
+  - Login, en grande arriba del título.
+  - Pantalla de bienvenida.
+- Borré `favicon.svg`, que era el logo de Vite de la plantilla.
+
+**Sobre la imagen original**
+`Gemini_Generated_Image_…jpeg` sigue en la raíz y pesa 2.6 MB. Ya no hace falta para la app, porque todo lo necesario quedó en `frontend/public/`. ¿La borro, o la muevo a `docs/` como fuente del logo? Te recomiendo no subirla al repositorio, por el peso.
+
+¿Hago el commit del logo con su entrada en `docs/BITACORA.md`?
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:33
+
+recrea la imagen sin fondo para que sea el logo o modifica el estilo de la imagen
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (3)</summary>
+
+- **Bash** — Check available image tools
+- **AskUserQuestion**
+- **Bash** — Install rembg in isolated scratchpad venv
+
+</details>
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:35
+
+continua
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Install rembg in isolated scratchpad venv
+
+</details>
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:36
+
+cancelalo
+
+
+### 🤖 Claude
+
+Cancelado: no se instaló ni se descargó nada, porque las dos veces el comando se rechazó antes de ejecutarse. Tu sistema y el proyecto quedaron igual.
+
+El logo sigue siendo el de antes: el gato con su fondo de ciudad, recortado en cuadro con esquinas redondeadas. Está en `frontend/public/` y en la barra lateral, el login y la bienvenida, sin commit.
+
+¿Qué hago con él?
+1. **Dejarlo así** y hacer el commit con su entrada en `docs/BITACORA.md`.
+2. **Cambiar el estilo sin descargar nada:** difuminar y oscurecer el fondo para que resalte solo la cara.
+3. **Quitar el fondo tú mismo**, con una herramienta como remove.bg o el editor de imágenes de tu celular. Si dejas el PNG sin fondo en la raíz, genero con él todos los tamaños del logo.
+4. **Quitar el logo** y volver a como estaba.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:37
+
+4
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Review pending changes before reverting
+
+</details>
+
+Los cambios en esos archivos son solo del logo. Los revierto y borro los íconos que generé, sin tocar tu imagen original, el diario ni la bitácora:
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Revert logo changes and rebuild
+
+</details>
+
+Quité el logo y la app volvió a estar como antes:
+- **Archivos restaurados:** `index.html`, la barra lateral, el login, la bienvenida y el `favicon.svg` original.
+- **Íconos borrados:** `apple-touch-icon.png`, `favicon-32.png`, `favicon.ico`, `logo-192.png` y `logo.webp`.
+
+El frontend compila bien.
+
+No toqué tu imagen original (`Gemini_Generated_Image_…jpeg`, en la raíz), tu `docs/Diario de Desiciones.md` ni la bitácora de la conversación. Los tres siguen sin commit.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:40
+
+has el commit que falta y subelo
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Check diary content before commit
+
+</details>

@@ -352,3 +352,11 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome: nombres vacíos, repetidos y largos; triple clic en Agregar; doble clic en "Nuevo documento"; título de 250 letras; recargar a medio escribir y a medio pintar; quitar una materia con horas; enlaces inexistentes; servidor sin respuesta y recuperación; página que falla.
 
 **Resultado:** la app avisa con mensajes claros o impide la acción en los casos límite, sin pantallas en blanco, errores 500 ni datos duplicados. ✅
+
+## Iteración 17 — Diario de decisiones (22 nov 2026)
+
+**Documentación**
+- `docs/Diario de Desiciones.md`: por qué se eligió la arquitectura cliente-servidor en monorepo y el stack (React + Vite, Fastify, PostgreSQL en Neon, Vercel y Render), cómo se planeó el roadmap por fases y la metodología (planificación por especificación y desarrollo iterativo apoyado en IA).
+- Se probó un logo a partir de una imagen generada, pero se descartó; la app conserva el ícono anterior.
+
+**Resultado:** el proyecto documenta sus decisiones principales junto a la bitácora y la conversación con la IA. ✅
