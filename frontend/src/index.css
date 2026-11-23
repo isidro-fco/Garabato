@@ -262,26 +262,29 @@
 }
 
 /* --- Editor con vista en vivo (CodeMirror, ver utils/vistaEnVivo.js) --- */
-.editor-vivo .cm-line { color: var(--foreground); }
+.editor-vivo .cm-content { color: var(--foreground); }
 
-.cm-vv-marca { color: var(--muted-foreground); opacity: 0.7; }
+/* Colores: var(--md-x) elegido por el usuario o var(--md-x-base) de paleta-markdown.json (utils/coloresMarkdown.js). */
+.cm-vv-marca { color: var(--md-marcas, var(--md-marcas-base)); opacity: 0.7; }
 .cm-vv-titulo { font-weight: 700; }
 /* Mismos tamaños que el documento impreso (documento.css): 18, 15, 13 y 12 pt sobre 12 pt. */
 .cm-vv-titulo { line-height: 1.25; }
-.cm-vv-h1 { font-size: 1.5em; }
-.cm-vv-h2 { font-size: 1.25em; }
-.cm-vv-h3 { font-size: 1.085em; }
+.cm-vv-h1 { font-size: 1.5em; color: var(--md-titulo1, var(--md-titulo1-base)); }
+.cm-vv-h2 { font-size: 1.25em; color: var(--md-titulo2, var(--md-titulo2-base)); }
+.cm-vv-h3 { font-size: 1.085em; color: var(--md-titulo3, var(--md-titulo3-base)); }
 .cm-vv-h4, .cm-vv-h5, .cm-vv-h6 { font-size: 1em; }
-.cm-vv-negrita { font-weight: 700; }
-.cm-vv-cursiva { font-style: italic; }
-.cm-vv-tachado { text-decoration: line-through; }
-.cm-vv-codigo { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.88em; background: var(--muted); border-radius: 0.25rem; padding: 0.1em 0.25em; }
-.cm-vv-enlace { color: oklch(0.546 0.245 262.881); text-decoration: underline; text-underline-offset: 3px; }
-.dark .cm-vv-enlace { color: oklch(0.707 0.165 254.624); }
+.cm-vv-h4 { color: var(--md-titulo4, var(--md-titulo4-base)); }
+.cm-vv-h5 { color: var(--md-titulo5, var(--md-titulo5-base)); }
+.cm-vv-h6 { color: var(--md-titulo6, var(--md-titulo6-base)); }
+.cm-vv-negrita { font-weight: 700; color: var(--md-negrita, var(--md-negrita-base)); }
+.cm-vv-cursiva { font-style: italic; color: var(--md-cursiva, var(--md-cursiva-base)); }
+.cm-vv-tachado { text-decoration: line-through; color: var(--md-tachado, var(--md-tachado-base)); }
+.cm-vv-codigo { color: var(--md-codigo, var(--md-codigo-base)); font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.88em; background: var(--muted); border-radius: 0.25rem; padding: 0.1em 0.25em; }
+.cm-vv-enlace { color: var(--md-enlaces, var(--md-enlaces-base)); text-decoration: underline; text-underline-offset: 3px; }
 .cm-vv-url { text-decoration: none; }
-.cm-vv-cita { border-left: 3px solid var(--border); color: var(--muted-foreground); font-style: italic; padding-left: 1em !important; }
-.cm-vv-vineta { display: inline-block; width: 0.6em; color: var(--muted-foreground); font-weight: 700; }
-.cm-vv-numero { color: var(--muted-foreground); }
+.cm-vv-cita { border-left: 3px solid var(--md-citas, var(--md-citas-base)); background: color-mix(in oklch, var(--muted) 70%, transparent); padding-left: 1em !important; }
+.cm-vv-vineta { display: inline-block; width: 0.6em; color: var(--md-listas, var(--md-listas-base)); font-weight: 700; }
+.cm-vv-numero { color: var(--md-listas, var(--md-listas-base)); }
 .cm-vv-casilla { display: inline-block; width: 0.95em; height: 0.95em; vertical-align: -0.12em; border: 1.5px solid var(--muted-foreground); border-radius: 0.2em; }
 .cm-vv-casilla[data-marcada="true"] { background: var(--foreground) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / 80% no-repeat; border-color: var(--foreground); }
 .dark .cm-vv-casilla[data-marcada="true"] { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E"); }

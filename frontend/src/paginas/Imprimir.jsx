@@ -1,6 +1,6 @@
 import { ArrowLeft, Printer } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
 import { obtenerDocumento } from '../api.js'
 import { Cargando, MensajeError } from '../componentes/Estado.jsx'
 import { Button } from '@/componentes/ui/button'
@@ -12,6 +12,7 @@ import { useCargar } from '../utils/useCargar.js'
 // (ahí se elige "Guardar como PDF"). ?sinImprimir solo muestra las páginas.
 export default function Imprimir() {
   const { docId } = useParams()
+  const { colores } = useOutletContext()
   const [params] = useSearchParams()
   const { cargando, datos: doc, error } = useCargar(() => obtenerDocumento(docId), [docId])
   const destino = useRef(null)
@@ -24,12 +25,14 @@ export default function Imprimir() {
     if (!doc || iniciado.current) return
     iniciado.current = true
     document.title = doc.titulo // Chrome lo usa como nombre del PDF
-    paginarDocumento(doc, destino.current)
+    paginarDocumento(doc, destino.current, colores)
       .then((total) => {
         setPaginas(total)
         if (!params.has('sinImprimir')) setTimeout(imprimir, 300)
       })
       .catch(setErrorPaginas)
+    // colores: solo al paginar; si cambian después no se vuelve a paginar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc, params])
 
   return (

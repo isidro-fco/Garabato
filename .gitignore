@@ -11,3 +11,5 @@ dist/
 
 # Configuración local de Claude Code
 .claude/settings.local.json
+.claude/hooks
+.claude/*.local.txt

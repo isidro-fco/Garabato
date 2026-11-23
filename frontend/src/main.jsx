@@ -3,12 +3,12 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import './documento.css'
+import { iniciarColores } from './utils/coloresMarkdown.js'
+import { iniciarTema } from './utils/tema.js'
 
-// Modo oscuro según el sistema (shadcn/ui usa la clase .dark).
-const oscuro = window.matchMedia('(prefers-color-scheme: dark)')
-const aplicarTema = () => document.documentElement.classList.toggle('dark', oscuro.matches)
-aplicarTema()
-oscuro.addEventListener('change', aplicarTema)
+// Tema elegido en Configuración (o el del sistema); shadcn/ui usa la clase .dark.
+iniciarTema()
+iniciarColores()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

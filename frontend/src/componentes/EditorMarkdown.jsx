@@ -1,10 +1,10 @@
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
-import { EditorSelection, EditorState } from '@codemirror/state'
+import { Compartment, EditorSelection, EditorState } from '@codemirror/state'
 import { EditorView, keymap, placeholder } from '@codemirror/view'
 import { useEffect, useImperativeHandle, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { vistaEnVivo } from '../utils/vistaEnVivo.js'
+import { marcasVisibles, vistaEnVivo } from '../utils/vistaEnVivo.js'
 
 // Ctrl/Cmd + B o I: envuelve la selección (o la palabra vacía) con la marca.
 function envolver(marcaTexto) {
@@ -50,8 +50,10 @@ const tema = EditorView.theme({
 // Editor de Markdown con vista en vivo (ver utils/vistaEnVivo.js).
 // valorInicial: el texto al montar; después el editor es la fuente de verdad.
 // onCambiar(texto) se llama en cada cambio. ref expone insertar(texto) y enfocar().
-export default function EditorMarkdown({ valorInicial, onCambiar, ref, className, id, etiqueta }) {
+// verMarcas: todas las líneas muestran sus marcas de Markdown (vista previa de Configuración).
+export default function EditorMarkdown({ valorInicial, onCambiar, ref, className, id, etiqueta, verMarcas = false }) {
   const contenedor = useRef(null)
+  const compartimento = useRef(new Compartment())
   const vista = useRef(null)
   const alCambiar = useRef(onCambiar)
   useEffect(() => {
@@ -79,6 +81,7 @@ export default function EditorMarkdown({ valorInicial, onCambiar, ref, className
           EditorView.contentAttributes.of({ id, 'aria-label': etiqueta, spellcheck: 'true', autocapitalize: 'sentences', lang: 'es' }),
           tema,
           vistaEnVivo,
+          compartimento.current.of(marcasVisibles.of(verMarcas)),
           EditorView.updateListener.of((u) => {
             if (u.docChanged) alCambiar.current?.(u.state.doc.toString())
           }),
@@ -90,6 +93,10 @@ export default function EditorMarkdown({ valorInicial, onCambiar, ref, className
     // Solo al montar: después el texto vive dentro de CodeMirror.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    vista.current?.dispatch({ effects: compartimento.current.reconfigure(marcasVisibles.of(verMarcas)) })
+  }, [verMarcas])
 
   useImperativeHandle(ref, () => ({
     // Inserta texto donde está el cursor (o reemplaza la selección), con espacios

@@ -1,0 +1,89 @@
+{
+  "descripcion": "Paleta predeterminada de los elementos de Markdown (estilo Tokyo Night). oscuro: tema oscuro del editor; claro: tema claro y PDF (los mismos tonos, más oscuros para la hoja blanca).",
+  "elementos": [
+    {
+      "clave": "titulo1",
+      "nombre": "Título 1 (#)",
+      "claro": "#f52a65",
+      "oscuro": "#ff757f"
+    },
+    {
+      "clave": "titulo2",
+      "nombre": "Título 2 (##)",
+      "claro": "#b15c00",
+      "oscuro": "#e0af68"
+    },
+    {
+      "clave": "titulo3",
+      "nombre": "Título 3 (###)",
+      "claro": "#587539",
+      "oscuro": "#9ece6a"
+    },
+    {
+      "clave": "titulo4",
+      "nombre": "Título 4 (####)",
+      "claro": "#007197",
+      "oscuro": "#7dcfff"
+    },
+    {
+      "clave": "titulo5",
+      "nombre": "Título 5 (#####)",
+      "claro": "#2e7de9",
+      "oscuro": "#7aa2f7"
+    },
+    {
+      "clave": "titulo6",
+      "nombre": "Título 6 (######)",
+      "claro": "#9854f1",
+      "oscuro": "#bb9af7"
+    },
+    {
+      "clave": "negrita",
+      "nombre": "Negrita",
+      "claro": "#007197",
+      "oscuro": "#7dcfff"
+    },
+    {
+      "clave": "cursiva",
+      "nombre": "Cursiva",
+      "claro": "#007197",
+      "oscuro": "#7dcfff"
+    },
+    {
+      "clave": "tachado",
+      "nombre": "Tachado",
+      "claro": "#6172b0",
+      "oscuro": "#c0caf5"
+    },
+    {
+      "clave": "enlaces",
+      "nombre": "Enlaces",
+      "claro": "#9854f1",
+      "oscuro": "#bb9af7"
+    },
+    {
+      "clave": "codigo",
+      "nombre": "Código",
+      "claro": "#3760bf",
+      "oscuro": "#c0caf5"
+    },
+    {
+      "clave": "citas",
+      "nombre": "Citas (barra)",
+      "claro": "#e67e00",
+      "oscuro": "#ff8c00"
+    },
+    {
+      "clave": "listas",
+      "nombre": "Viñetas y números",
+      "claro": "#848cb5",
+      "oscuro": "#565f89"
+    },
+    {
+      "clave": "marcas",
+      "nombre": "Símbolos de Markdown (# ** [ ])",
+      "claro": "#848cb5",
+      "oscuro": "#565f89"
+    }
+  ]
+}

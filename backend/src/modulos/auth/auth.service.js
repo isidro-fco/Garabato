@@ -30,7 +30,7 @@ export async function guardarUsuario(perfil, refreshToken) {
 
 export async function obtenerUsuario(id) {
   const { rows } = await query(
-    'SELECT id, nombre, correo, foto, materias FROM usuarios WHERE id = $1',
+    'SELECT id, nombre, correo, foto, materias, colores FROM usuarios WHERE id = $1',
     [id],
   );
   return rows[0] ?? null;
@@ -43,4 +43,15 @@ export async function guardarMaterias(id, materias) {
     [id, [...new Set(materias)]],
   );
   return rows[0]?.materias ?? null;
+}
+
+// Guarda los colores del editor (JSON). Solo se guardan los colores elegidos;
+// null quita uno (vuelve al predeterminado). Un objeto vacío = paleta predeterminada.
+export async function guardarColores(id, colores) {
+  const elegidos = Object.fromEntries(Object.entries(colores).filter(([, valor]) => valor));
+  const { rows } = await query(
+    'UPDATE usuarios SET colores = $2::jsonb, actualizado_en = now() WHERE id = $1 RETURNING colores',
+    [id, JSON.stringify(elegidos)],
+  );
+  return rows[0]?.colores ?? null;
 }

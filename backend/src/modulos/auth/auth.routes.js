@@ -1,6 +1,6 @@
 import oauth2 from '@fastify/oauth2';
 import { config } from '../../config.js';
-import { guardarMaterias, guardarUsuario, obtenerPerfilGoogle, obtenerUsuario } from './auth.service.js';
+import { guardarColores, guardarMaterias, guardarUsuario, obtenerPerfilGoogle, obtenerUsuario } from './auth.service.js';
 
 const SCOPES = [
   'openid',
@@ -69,4 +69,27 @@ export default async function authRoutes(app) {
       },
     },
   }, async (request) => ({ materias: await guardarMaterias(request.usuarioId, request.body.materias) }));
+
+  // Colores del editor: { clave: "#rrggbb" | null }. Las claves son las de la
+  // paleta del frontend (paleta-markdown.json); aquí solo se valida la forma.
+  app.put('/api/yo/colores', {
+    preHandler: app.requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['colores'],
+        additionalProperties: false,
+        properties: {
+          colores: {
+            type: 'object',
+            maxProperties: 30,
+            propertyNames: { type: 'string', pattern: '^[a-z][a-z0-9]{0,29}$' },
+            additionalProperties: {
+              anyOf: [{ type: 'string', pattern: '^#[0-9a-fA-F]{6}$' }, { type: 'null' }],
+            },
+          },
+        },
+      },
+    },
+  }, async (request) => ({ colores: await guardarColores(request.usuarioId, request.body.colores) }));
 }

@@ -47,5 +47,9 @@ export async function crearTablas() {
     -- Materias de Classroom que el usuario quiere ver. NULL = todavía no elige
     -- (primer acceso): el frontend le muestra la pantalla para escogerlas.
     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS materias TEXT[];
+
+    -- Colores del editor elegidos por el usuario, como JSON: { "negrita": "#e11d48", ... }.
+    -- Solo los que cambió; los demás usan la paleta predeterminada del frontend.
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS colores JSONB;
   `);
 }

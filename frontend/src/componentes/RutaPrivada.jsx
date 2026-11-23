@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { guardarMaterias, obtenerYo } from '../api.js'
+import { guardarColores, guardarMaterias, obtenerYo } from '../api.js'
+import { hayElegidos, leerColores, normalizar, usarColores } from '../utils/coloresMarkdown.js'
 import Bienvenida from '../paginas/Bienvenida.jsx'
 import BarraLateral from './BarraLateral.jsx'
 import { Cargando, MensajeError } from './Estado.jsx'
@@ -8,7 +9,8 @@ import { Cargando, MensajeError } from './Estado.jsx'
 // Envuelve las rutas privadas: si no hay sesión, manda a /login.
 // En el primer acceso pide escoger las materias (Bienvenida).
 // Muestra la barra lateral y las páginas hijas leen con useOutletContext():
-//   usuario, materias (ids elegidos o null = todas) y cambiarMaterias(ids).
+//   usuario, materias (ids elegidos o null = todas) y cambiarMaterias(ids),
+//   colores (del editor) y cambiarColores(colores).
 // conBarra={false}: páginas sin la barra lateral, como la vista de impresión.
 export default function RutaPrivada({ conBarra = true }) {
   const [estado, setEstado] = useState({ cargando: true, usuario: null, error: null })
@@ -17,7 +19,14 @@ export default function RutaPrivada({ conBarra = true }) {
 
   useEffect(() => {
     obtenerYo()
-      .then((usuario) => setEstado({ cargando: false, usuario, error: null }))
+      .then((usuario) => {
+        setEstado({ cargando: false, usuario, error: null })
+        // Los colores de la cuenta mandan. Si la cuenta aún no tiene y en este
+        // navegador había colores elegidos (antes se guardaban solo aquí), se suben.
+        if (usuario.colores) usarColores(usuario.colores)
+        else if (hayElegidos(leerColores())) guardarColores(leerColores()).catch(() => {})
+        else usarColores({})
+      })
       .catch((error) => setEstado({ cargando: false, usuario: null, error }))
   }, [])
 
@@ -37,7 +46,18 @@ export default function RutaPrivada({ conBarra = true }) {
     const { materias } = await guardarMaterias(ids)
     setEstado((e) => ({ ...e, usuario: { ...e.usuario, materias } }))
   }
-  const contexto = { usuario: estado.usuario, materias: estado.usuario.materias ?? null, cambiarMaterias }
+  // Guarda en la cuenta; los colores ya se aplicaron al elegirlos.
+  async function cambiarColores(nuevos) {
+    const { colores } = await guardarColores(nuevos)
+    setEstado((e) => ({ ...e, usuario: { ...e.usuario, colores } }))
+  }
+  const contexto = {
+    usuario: estado.usuario,
+    materias: estado.usuario.materias ?? null,
+    cambiarMaterias,
+    colores: estado.usuario.colores ? normalizar(estado.usuario.colores) : leerColores(),
+    cambiarColores,
+  }
 
   if (!conBarra) return <Outlet context={contexto} />
 

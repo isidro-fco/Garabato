@@ -3,7 +3,7 @@
 // marcas (#, **, [](), etc.) para poder editarlas. Los estilos están en index.css
 // (clases cm-vv-*).
 import { syntaxTree } from '@codemirror/language'
-import { StateField } from '@codemirror/state'
+import { Facet, StateField } from '@codemirror/state'
 import { Decoration, EditorView, ViewPlugin, WidgetType } from '@codemirror/view'
 
 const ocultar = Decoration.replace({})
@@ -93,8 +93,13 @@ class Tabla extends WidgetType {
 
 // --- Líneas activas ---
 
+// Con esta faceta en true todas las líneas muestran sus marcas (vista previa de Configuración).
+export const marcasVisibles = Facet.define({ combine: (valores) => valores.some(Boolean) })
+const TODAS = { has: () => true }
+
 // Números de línea que tocan la selección. Sin foco no hay ninguna: todo se ve formateado.
 function lineasActivas(state, conFoco) {
+  if (state.facet(marcasVisibles)) return TODAS
   const activas = new Set()
   if (!conFoco) return activas
   for (const r of state.selection.ranges) {
@@ -240,7 +245,7 @@ const enLinea = ViewPlugin.fromClass(
   class {
     constructor(view) { this.decorations = decorar(view) }
     update(u) {
-      if (u.docChanged || u.selectionSet || u.viewportChanged || u.focusChanged || syntaxTree(u.startState) !== syntaxTree(u.state)) {
+      if (u.docChanged || u.selectionSet || u.viewportChanged || u.focusChanged || syntaxTree(u.startState) !== syntaxTree(u.state) || u.startState.facet(marcasVisibles) !== u.state.facet(marcasVisibles)) {
         this.decorations = decorar(u.view)
       }
     }
@@ -276,7 +281,7 @@ function decorarTablas(state) {
 const tablas = StateField.define({
   create: decorarTablas,
   update: (deco, tr) =>
-    tr.docChanged || tr.selection || syntaxTree(tr.startState) !== syntaxTree(tr.state) ? decorarTablas(tr.state) : deco,
+    tr.docChanged || tr.selection || tr.reconfigured || syntaxTree(tr.startState) !== syntaxTree(tr.state) ? decorarTablas(tr.state) : deco,
   provide: (campo) => EditorView.decorations.from(campo),
 })
 

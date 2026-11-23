@@ -27,7 +27,8 @@ export const OPCIONES_BASE = {
     estilo: 'arabigo', // arabigo | romano | pagina
     contarPortada: false, // false: la primera página después de la portada es la 1
   },
-  formato: { tamano: 'carta', fuente: 'serif', interlineado: 1.5 },
+  // colores: el PDF usa los colores del editor (títulos, negritas, enlaces…); false = todo en negro.
+  formato: { tamano: 'carta', fuente: 'serif', interlineado: 1.5, colores: true },
   // Fuentes en APA (ver utils/apa.js); la sección "Referencias" se genera al final.
   referencias: { nuevaPagina: true, fuentes: [] },
 }

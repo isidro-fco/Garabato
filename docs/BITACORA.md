@@ -290,3 +290,28 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome del editor en vivo y las hojas (30/30 y 20/20), logos (19/19 y 4/4), portada (4/4) y equipo (7/7), en escritorio, celular y modo oscuro, revisando también el PDF.
 
 **Resultado:** se escribe directamente sobre hojas que se ven como el documento final, con una portada como la que pide la universidad. ✅
+
+---
+
+## Iteración 14 — Configuración en menú, colores del editor y tema (22 nov 2026)
+
+**Documentación**
+- La bitácora se movió a `docs/BITACORA.md` y desde ahora lleva un resumen por commit.
+- `docs/bitacora IA Claude.md`: todas las conversaciones con Claude, regeneradas al terminar cada respuesta (hook local de Claude Code), con datos personales y secretos ocultos.
+
+**Frontend**
+- Configuración es un menú de tarjetas (Materias, Horario, Colores del editor y Tema) con un resumen de cada una; cada opción se abre en una ventana flotante (`ui/dialog.jsx`), con su estado en la URL (`?abrir=…`) para que "atrás" la cierre. En celular ocupa toda la pantalla.
+- Colores del editor (`ColoresMarkdown.jsx`): un color por elemento de Markdown (títulos H1–H6, negrita, cursiva, tachado, enlaces, código, citas, listas y símbolos) con vista previa en vivo sobre texto lorem y opción para ver los símbolos.
+- Paleta predeterminada estilo Tokyo Night en `paleta-markdown.json`, con versión para tema oscuro y para tema claro / PDF.
+- El PDF usa los mismos colores (siempre los del tema claro); la casilla "Colores en el PDF" de cada documento permite imprimir todo en negro. Portada y referencias quedan en negro.
+- Tema de la app: Sistema, Claro u Oscuro (`utils/tema.js`, `SelectorTema.jsx`), guardado en el dispositivo.
+- Corregido: una regla de color por línea impedía ver las citas en gris y cambiar el color de los títulos.
+
+**Backend**
+- Columna `usuarios.colores` (`JSONB`) con solo los colores elegidos; `PUT /api/yo/colores` valida claves y colores `#rrggbb`. `/api/yo` los devuelve. Los colores que estaban solo en el navegador se suben a la cuenta la primera vez.
+
+**Pruebas**
+- Backend contra la base `dev` con usuarios temporales (18/18).
+- Prueba en Chrome: colores (20/20), colores en la cuenta (12/12), PDF con colores (9/9), menú de Configuración (17/17), tema (14/14), y de nuevo materias, horario y editor; en escritorio, celular y modo oscuro.
+
+**Resultado:** Configuración muestra solo lo necesario y cada opción se abre aparte; el editor y el PDF tienen colores personalizables guardados en la cuenta. ✅

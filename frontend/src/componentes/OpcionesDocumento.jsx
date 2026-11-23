@@ -78,6 +78,7 @@ function Opciones({ valor, onCambiar, opciones, disabled, etiqueta }) {
 export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuario, nuevo }) {
   const [rellenando, setRellenando] = useState(false)
   const idContarPortada = useId()
+  const idColores = useId()
   const { portada, encabezado, pie, numeracion, formato } = opciones
 
   // onCambiar aplica los campos sobre la versión más reciente (puede haber
@@ -258,6 +259,18 @@ export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuari
           onCambiar={(v) => cambiar('formato', { interlineado: Number(v) })}
           opciones={[[1.15, 'Sencillo (1.15)'], [1.5, '1.5'], [2, 'Doble']]}
         />
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id={idColores}
+            checked={formato.colores}
+            onCheckedChange={(v) => cambiar('formato', { colores: v === true })}
+            className="mt-0.5"
+          />
+          <div className="grid gap-0.5">
+            <Label htmlFor={idColores} className="text-sm font-normal">Colores en el PDF</Label>
+            <p className="text-xs text-muted-foreground">Títulos, negritas, enlaces y demás con los colores del editor. Desmárcalo para imprimir todo en negro.</p>
+          </div>
+        </div>
       </Seccion>
     </div>
   )

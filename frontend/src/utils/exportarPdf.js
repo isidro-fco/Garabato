@@ -2,6 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import DocumentoImpreso from '../componentes/DocumentoImpreso.jsx'
 import cssDocumento from '../documento.css?raw'
+import { cssColores } from './coloresMarkdown.js'
 import { completarOpciones, FUENTES, MARGEN_CM, TAMANOS } from './opcionesDocumento.js'
 
 // Texto seguro dentro de content: "..." en CSS.
@@ -71,14 +72,19 @@ export function htmlDocumento(doc, opciones) {
 }
 
 // Divide el documento en páginas con Paged.js dentro de `destino`.
-// Devuelve el número de páginas. Después basta con window.print().
-export async function paginarDocumento(doc, destino) {
+// colores: los del editor del usuario (se usan si el documento tiene
+// formato.colores). Devuelve el número de páginas. Después basta con window.print().
+export async function paginarDocumento(doc, destino, colores) {
   const { Previewer } = await import('pagedjs')
   const opciones = completarOpciones(doc.opciones)
   const previewer = new Previewer()
   const flujo = await previewer.preview(
     htmlDocumento(doc, opciones),
-    [{ 'documento.css': cssDocumento }, { 'paginas.css': cssPaginas(opciones, doc.titulo) }],
+    [
+      { 'documento.css': cssDocumento },
+      { 'paginas.css': cssPaginas(opciones, doc.titulo) },
+      ...(opciones.formato.colores ? [{ 'colores.css': cssColores(colores) }] : []),
+    ],
     destino,
   )
   return flujo.total
