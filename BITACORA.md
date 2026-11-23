@@ -249,3 +249,23 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome (20/20): bienvenida, filtro en cada página, guardar desde Configuración, persistencia, celular y modo oscuro.
 
 **Resultado:** cada usuario ve solo las materias que cursa, en el celular y en la computadora. ✅
+
+---
+
+## Iteración 12 — Horario pintable (22 nov 2026)
+
+**Frontend**
+- `HorarioPintable.jsx` reemplaza el formulario de bloques en Configuración: una tabla semanal (lunes a sábado, domingo opcional, de 7:00 a 22:00) dividida en horas.
+- Abajo, fijo mientras se recorre la tabla, un selector con las materias activas (color y horas pintadas) y un borrador. Se elige una materia y se arrastra sobre la tabla para pintar; repasar la misma materia la borra y pintar encima de otra la reemplaza. En celular se toca cada hora; también funciona con teclado.
+- Cada trazo se guarda solo ("Guardando…" / "Guardado"); las horas seguidas de una materia se unen en un bloque.
+- `utils/horario.js`: conversión entre bloques guardados y celdas de una hora (una hora se pinta si la clase ocupa al menos la mitad).
+
+**Backend**
+- `PUT /api/horarios`: reemplaza en una transacción los bloques de las materias indicadas; los de materias ocultas no se tocan.
+
+**Pruebas**
+- Backend contra la base `dev` con usuarios temporales (8/8).
+- Conversión bloques ↔ celdas (11/11).
+- Prueba en Chrome (23/23): pintar arrastrando, borrar, reemplazar, teclado, persistencia, domingo, inicio, celular con toque y modo oscuro.
+
+**Resultado:** el horario se captura pintando la tabla en lugar de llenar un formulario por bloque. ✅

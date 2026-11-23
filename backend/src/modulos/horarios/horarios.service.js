@@ -1,4 +1,4 @@
-import { query } from '../../db.js';
+import { pool, query } from '../../db.js';
 
 const COLUMNAS = `id, curso_id, dia, to_char(hora_inicio, 'HH24:MI') AS hora_inicio, to_char(hora_fin, 'HH24:MI') AS hora_fin`;
 
@@ -68,4 +68,28 @@ export async function actualizarHorario(usuarioId, id, cambios) {
 export async function eliminarHorario(usuarioId, id) {
   const { rowCount } = await query('DELETE FROM horarios WHERE id = $1 AND usuario_id = $2', [id, usuarioId]);
   return rowCount > 0;
+}
+
+// Reemplaza de una vez el horario de las materias indicadas (la tabla que se
+// pinta en Configuración). Los bloques de otras materias no se tocan.
+export async function reemplazarHorarios(usuarioId, cursos, bloques) {
+  const cliente = await pool.connect();
+  try {
+    await cliente.query('BEGIN');
+    await cliente.query('DELETE FROM horarios WHERE usuario_id = $1 AND curso_id = ANY($2)', [usuarioId, cursos]);
+    for (const { cursoId, dia, horaInicio, horaFin } of bloques) {
+      await cliente.query(
+        'INSERT INTO horarios (usuario_id, curso_id, dia, hora_inicio, hora_fin) VALUES ($1, $2, $3, $4, $5)',
+        [usuarioId, cursoId, dia, horaInicio, horaFin],
+      );
+    }
+    await cliente.query('COMMIT');
+  } catch (err) {
+    await cliente.query('ROLLBACK');
+    if (err.code === '23514') throw new ErrorHorario('La hora de fin debe ser posterior a la de inicio');
+    throw err;
+  } finally {
+    cliente.release();
+  }
+  return listarHorarios(usuarioId);
 }

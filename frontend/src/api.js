@@ -94,6 +94,7 @@ export const eliminarDocumento = (docId) => pedir(`/api/documentos/${id(docId)}`
 
 // --- Horarios ---
 export const listarHorarios = () => pedir('/api/horarios')
-// datos: { cursoId, dia (0 = domingo), horaInicio: 'HH:MM', horaFin: 'HH:MM' }
-export const crearHorario = (datos) => enviar('/api/horarios', 'POST', datos)
-export const eliminarHorario = (horarioId) => pedir(`/api/horarios/${id(horarioId)}`, { method: 'DELETE' })
+// Reemplaza los bloques de las materias en `cursos` por `bloques`
+// ({ cursoId, dia (0 = domingo), horaInicio: 'HH:MM', horaFin: 'HH:MM' }).
+// Los de otras materias se conservan. Devuelve el horario completo.
+export const guardarHorario = (cursos, bloques) => enviar('/api/horarios', 'PUT', { cursos, bloques })
