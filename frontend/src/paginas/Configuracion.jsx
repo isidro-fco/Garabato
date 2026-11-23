@@ -1,7 +1,7 @@
 import { BookOpen, CalendarClock, ChevronRight, Palette, SunMoon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
-import { listarClases, listarHorarios } from '../api.js'
+import { listarClases, listarHorarios, listarMateriasPropias } from '../api.js'
 import ColoresMarkdown from '../componentes/ColoresMarkdown.jsx'
 import { Cargando, Encabezado, MensajeError, Vacio } from '../componentes/Estado.jsx'
 import HorarioPintable from '../componentes/HorarioPintable.jsx'
@@ -15,7 +15,7 @@ import { soloActivas } from '../utils/materias.js'
 import { NOMBRES_TEMA, useTema } from '../utils/tema.js'
 import { useCargar } from '../utils/useCargar.js'
 
-const cargarTodo = () => Promise.all([listarClases(), listarHorarios()])
+const cargarTodo = () => Promise.all([listarClases(), listarHorarios(), listarMateriasPropias()])
 
 // Configuración como un menú: cada opción es una tarjeta con un resumen y se
 // abre en una ventana flotante. La ventana abierta va en la URL (?abrir=…), así
@@ -42,8 +42,11 @@ export default function Configuracion() {
   // El horario se guarda en cada trazo; aquí se conserva la versión más reciente.
   const [editado, setEditado] = useState(null)
   const horarios = editado ?? datos?.[1]
+  // Materias sin clase en Classroom; se agregan y quitan desde el horario.
+  const [propiasEditadas, setPropias] = useState(null)
+  const propias = propiasEditadas ?? datos?.[2] ?? []
 
-  const idsActivas = new Set(activas?.map((c) => c.id))
+  const idsActivas = new Set([...(activas ?? []), ...propias].map((c) => c.id))
   const horas = horarios ? celdasDesdeHorarios(horarios.filter((h) => idsActivas.has(h.cursoId))).size : 0
   const conHorario = new Set(horarios?.filter((h) => idsActivas.has(h.cursoId)).map((h) => h.cursoId)).size
   const { tema, oscuro } = useTema()
@@ -69,7 +72,17 @@ export default function Configuracion() {
       resumen: !datos ? null : horas === 0 ? 'Sin horas pintadas' : `${horas} h por semana · ${conHorario} ${conHorario === 1 ? 'materia' : 'materias'}`,
       ancho: 'sm:max-w-5xl',
       // key: si cambian las materias, la tabla se arma de nuevo con ellas.
-      contenido: datos && <HorarioPintable key={activas.map((c) => c.id).join()} clases={activas} horarios={horarios} onGuardado={setEditado} />,
+      contenido: datos && (
+        <HorarioPintable
+          key={activas.map((c) => c.id).join()}
+          clases={activas}
+          todasClases={datos[0]}
+          propias={propias}
+          onPropias={setPropias}
+          horarios={horarios}
+          onGuardado={setEditado}
+        />
+      ),
     },
     {
       clave: 'colores',

@@ -1,6 +1,8 @@
-import { Check, Eraser, Loader2 } from 'lucide-react'
+import { Check, Eraser, Loader2, Plus, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
-import { guardarHorario } from '../api.js'
+import { crearMateriaPropia, eliminarMateriaPropia, guardarHorario } from '../api.js'
+import { Button } from '@/componentes/ui/button'
+import { Input } from '@/componentes/ui/input'
 import { Label } from '@/componentes/ui/label'
 import { Switch } from '@/componentes/ui/switch'
 import { cn } from '@/lib/utils'
@@ -14,15 +16,20 @@ import {
   MINUTOS_CELDA,
   rangoTabla,
 } from '../utils/horario.js'
+import { nombreRepetido } from '../utils/materias.js'
 import { MensajeError, Vacio } from './Estado.jsx'
 
 const BORRADOR = 'borrador'
 
 // Horario semanal que se pinta: eliges una materia abajo y arrastras sobre la
 // tabla (en celular, tocas cada hora). Cada trazo se guarda solo.
-// clases: materias activas. horarios: bloques guardados (de todas las materias).
+// clases: materias activas de Classroom. todasClases: todas las de Classroom
+// (para no repetir nombres). propias: materias sin clase en Classroom, que se
+// agregan y quitan aquí; onPropias(lista) recibe la lista nueva.
+// horarios: bloques guardados (de todas las materias).
 // onGuardado(horarios) recibe el horario completo después de cada guardado.
-export default function HorarioPintable({ clases, horarios, onGuardado }) {
+export default function HorarioPintable({ clases: deClassroom, todasClases = deClassroom, propias = [], onPropias, horarios, onGuardado }) {
+  const clases = [...deClassroom, ...propias]
   const ids = clases.map((c) => c.id)
   const colores = coloresPorClase(clases)
   const nombres = new Map(clases.map((c) => [c.id, c.nombre]))
@@ -96,7 +103,39 @@ export default function HorarioPintable({ clases, horarios, onGuardado }) {
     }
   })
 
-  if (clases.length === 0) return <Vacio>No tienes materias seleccionadas.</Vacio>
+  // Al quitar una materia propia también se borran sus horas (el backend las borra).
+  async function quitarPropia(materia) {
+    const horas = [...actuales.current.values()].filter((id) => id === materia.id).length
+    if (horas > 0 && !window.confirm(`¿Quitar «${materia.nombre}»? También se borran sus ${horas} h del horario.`)) return
+    setError(null)
+    try {
+      await eliminarMateriaPropia(materia.id)
+    } catch (err) {
+      setError(err)
+      return
+    }
+    const nuevas = new Map([...actuales.current].filter(([, id]) => id !== materia.id))
+    actuales.current = nuevas
+    setCeldas(nuevas)
+    if (pincel === materia.id) setPincel(clases.find((c) => c.id !== materia.id)?.id ?? null)
+    onPropias?.(propias.filter((m) => m.id !== materia.id))
+  }
+
+  function agregada(materia) {
+    onPropias?.([...propias, materia])
+    setPincel(materia.id)
+  }
+
+  const nuevaMateria = <NuevaMateria clases={todasClases} propias={propias} onAgregada={agregada} />
+
+  if (clases.length === 0) {
+    return (
+      <div className="space-y-4">
+        <Vacio>No tienes materias seleccionadas.</Vacio>
+        {nuevaMateria}
+      </div>
+    )
+  }
 
   const dias = DIAS.filter(([dia]) => dia !== 0 || conDomingo)
   const filas = []
@@ -214,23 +253,42 @@ export default function HorarioPintable({ clases, horarios, onGuardado }) {
       <div className="sticky bottom-0 z-20 -mx-4 border-t bg-background/95 px-4 py-3 backdrop-blur md:mx-0 md:rounded-xl md:border">
         <p className="mb-2 text-xs text-muted-foreground" id={`${idDomingo}-pinceles`}>Materia para pintar</p>
         <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-labelledby={`${idDomingo}-pinceles`}>
-          {clases.map((clase) => (
-            <Pincel
-              key={clase.id}
-              activo={pincel === clase.id}
-              color={colores.get(clase.id)}
-              onClick={() => setPincel(clase.id)}
-            >
-              <span className="truncate">{clase.nombre}</span>
-              {horasPorMateria.get(clase.id) > 0 && (
-                <span className="shrink-0 text-xs text-muted-foreground">{horasPorMateria.get(clase.id).toLocaleString('es-MX')} h</span>
-              )}
-            </Pincel>
-          ))}
+          {clases.map((clase) => {
+            const pincelMateria = (
+              <Pincel
+                key={clase.id}
+                activo={pincel === clase.id}
+                color={colores.get(clase.id)}
+                onClick={() => setPincel(clase.id)}
+              >
+                <span className="truncate">{clase.nombre}</span>
+                {horasPorMateria.get(clase.id) > 0 && (
+                  <span className="shrink-0 text-xs text-muted-foreground">{horasPorMateria.get(clase.id).toLocaleString('es-MX')} h</span>
+                )}
+              </Pincel>
+            )
+            if (!propias.some((m) => m.id === clase.id)) return pincelMateria
+            return (
+              <span key={clase.id} className="flex max-w-full min-w-0 items-center">
+                {pincelMateria}
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="ml-0.5 shrink-0 rounded-full text-muted-foreground"
+                  onClick={() => quitarPropia(clase)}
+                  aria-label={`Quitar la materia ${clase.nombre}`}
+                  title="Quitar materia"
+                >
+                  <X />
+                </Button>
+              </span>
+            )
+          })}
           <Pincel activo={pincel === BORRADOR} onClick={() => setPincel(BORRADOR)}>
             <Eraser className="size-3.5" aria-hidden="true" />Borrar
           </Pincel>
         </div>
+        <div className="mt-3">{nuevaMateria}</div>
       </div>
     </div>
   )
@@ -262,5 +320,78 @@ function EstadoGuardado({ estado }) {
       {estado === 'guardando' ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
       {estado === 'guardando' ? 'Guardando…' : 'Guardado'}
     </span>
+  )
+}
+
+// Botón "Otra materia" que se convierte en un formulario para agregar una
+// materia que no está en Classroom. Revisa que el nombre no se repita.
+function NuevaMateria({ clases, propias, onAgregada }) {
+  const [abierto, setAbierto] = useState(false)
+  const [nombre, setNombre] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [errorServidor, setErrorServidor] = useState(null)
+  const idCampo = useId()
+
+  if (!abierto) {
+    return (
+      <Button variant="outline" size="sm" onClick={() => setAbierto(true)}>
+        <Plus />Otra materia (sin Classroom)
+      </Button>
+    )
+  }
+
+  const limpio = nombre.replace(/\s+/g, ' ').trim()
+  const repetido = limpio ? nombreRepetido(limpio, clases, propias) : null
+  const mensaje = repetido ?? errorServidor
+
+  function cerrar() {
+    setAbierto(false)
+    setNombre('')
+    setErrorServidor(null)
+  }
+
+  async function agregar(e) {
+    e.preventDefault()
+    if (!limpio || repetido || enviando) return
+    setEnviando(true)
+    setErrorServidor(null)
+    try {
+      onAgregada(await crearMateriaPropia(limpio))
+      cerrar()
+    } catch (err) {
+      setErrorServidor(err.message)
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  return (
+    <form onSubmit={agregar} className="space-y-1.5">
+      <Label htmlFor={idCampo} className="text-xs font-normal text-muted-foreground">
+        Nombre de la materia que no tiene clase en Classroom
+      </Label>
+      <div className="flex flex-wrap gap-2">
+        <Input
+          id={idCampo}
+          value={nombre}
+          onChange={(e) => {
+            setNombre(e.target.value)
+            setErrorServidor(null)
+          }}
+          onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cerrar())}
+          maxLength={80}
+          placeholder="Ej. Educación física"
+          autoFocus
+          aria-invalid={!!mensaje}
+          aria-describedby={mensaje ? `${idCampo}-error` : undefined}
+          className="min-w-48 flex-1"
+        />
+        <Button type="submit" size="sm" disabled={!limpio || !!repetido || enviando}>
+          {enviando ? <Loader2 className="animate-spin" /> : <Plus />}Agregar
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={cerrar}>Cancelar</Button>
+      </div>
+      {mensaje && <p id={`${idCampo}-error`} className="text-xs text-destructive" role="alert">{mensaje}</p>}
+    </form>
   )
 }

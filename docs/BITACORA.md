@@ -315,3 +315,19 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome: colores (20/20), colores en la cuenta (12/12), PDF con colores (9/9), menú de Configuración (17/17), tema (14/14), y de nuevo materias, horario y editor; en escritorio, celular y modo oscuro.
 
 **Resultado:** Configuración muestra solo lo necesario y cada opción se abre aparte; el editor y el PDF tienen colores personalizables guardados en la cuenta. ✅
+
+## Iteración 15 — Materias sin Classroom en el horario (22 nov 2026)
+
+**Frontend**
+- En Configuración → Horario, el botón "Otra materia (sin Classroom)" agrega materias que no tienen clase en Classroom; quedan como pincel y se pintan igual que las demás. Cada una se puede quitar (con confirmación si ya tiene horas).
+- Validación al escribir: no se puede repetir el nombre de una clase de Classroom ni de otra materia propia (sin importar mayúsculas, acentos ni espacios).
+- Inicio → Horario muestra también las materias propias (sin enlace a página de clase).
+
+**Backend**
+- Tabla `materias_propias` (índice único por usuario y nombre); en `horarios` se identifican como `propia-<id>`.
+- `GET/POST/DELETE /api/materias-propias`. Al crear, se revisa contra las clases de Classroom y las propias (409 `materia_repetida`); al borrar, también se borran sus horas.
+
+**Pruebas**
+- Validación de nombres repetidos (Classroom, propias, acentos y espacios) y build del frontend. Falta probarla en la app.
+
+**Resultado:** el horario puede incluir clases que no tienen apartado en Classroom, sin duplicar materias. ✅

@@ -6,11 +6,11 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import { CalendarDays, CircleAlert, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
-import { listarClases, listarHorarios, listarPendientes } from '../api.js'
+import { listarClases, listarHorarios, listarMateriasPropias, listarPendientes } from '../api.js'
 import { Cargando, Encabezado, MensajeError } from '../componentes/Estado.jsx'
 import { Tabs, TabsList, TabsTrigger } from '@/componentes/ui/tabs'
 import { COLOR_SIN_CLASE, coloresPorClase, rangoHorario } from '../utils/horario.js'
-import { soloActivas } from '../utils/materias.js'
+import { esPropia, soloActivas } from '../utils/materias.js'
 import { useCargar } from '../utils/useCargar.js'
 import { useMediaQuery } from '../utils/useMediaQuery.js'
 
@@ -138,14 +138,20 @@ function ContenidoEntrega({ event, timeText, view }) {
 function Horario({ clases, materias }) {
   const navigate = useNavigate()
   const esMovil = useMediaQuery('(max-width: 767px)')
-  const bloques = useCargar(listarHorarios, [])
+  // Bloques del horario y materias propias (las que no tienen clase en Classroom).
+  const bloques = useCargar(() => Promise.all([listarHorarios(), listarMateriasPropias()]), [])
   const { cargando, error } = bloques
-  const horarios = bloques.datos && deMaterias(bloques.datos, materias)
+  const propias = bloques.datos?.[1] ?? []
+  const idsPropias = new Set(propias.map((m) => m.id))
+  // Las propias siempre se ven; las de Classroom, solo si están activas.
+  const horarios = bloques.datos && bloques.datos[0].filter((h) =>
+    esPropia(h.cursoId) ? idsPropias.has(h.cursoId) : !materias || materias.includes(h.cursoId))
   if (cargando) return <Cargando texto="Cargando tu horario…" />
   if (error) return <MensajeError error={error} />
 
-  const colores = coloresPorClase(clases)
-  const nombres = new Map(clases.map((c) => [c.id, c.nombre]))
+  const todas = [...clases, ...propias]
+  const colores = coloresPorClase(todas)
+  const nombres = new Map(todas.map((c) => [c.id, c.nombre]))
   const { inicio, fin } = rangoHorario(horarios)
   const eventos = horarios.map((h) => ({
     id: String(h.id),
@@ -187,7 +193,8 @@ function Horario({ clases, materias }) {
           slotDuration="00:30:00"
           slotLabelFormat={{ hour: 'numeric', minute: '2-digit' }}
           events={eventos}
-          eventClick={({ event }) => navigate(`/clases/${event.extendedProps.cursoId}`)}
+          // Las materias propias no tienen página de clase.
+          eventClick={({ event }) => !esPropia(event.extendedProps.cursoId) && navigate(`/clases/${event.extendedProps.cursoId}`)}
         />
       </div>
     </div>

@@ -5,7 +5,7 @@ Se incluyen los mensajes del usuario y las respuestas de Claude; las acciones qu
 
 Este archivo se actualiza solo al terminar cada respuesta (hook de Claude Code, `.claude/hooks/exportar-chat.py`).
 
-- Última actualización: 22/11/2026 22:26
+- Última actualización: 22/11/2026 22:43
 - Conversaciones: 3
 
 
@@ -3980,3 +3980,129 @@ No, el último commit todavía no está en GitHub. Tu `master` local tiene un co
 - **Último en el remoto:** `a3d8c9b feat: editor en vivo sobre hojas tamaño carta y portada universitaria`
 
 ¿Quieres que haga `git push`?
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 22:26
+
+sí, súbelo, y revisa las bitacoras y actualizalas si no lo estan
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (3)</summary>
+
+- **Bash** — Read bitácora conventions and current state
+- **Bash** — Scan bitácora diff for personal data
+- **Bash** — Commit bitácora update and push
+
+</details>
+
+Ya está subido. Tu `master` y `origin/master` están iguales.
+
+- **Commits subidos:** `f9d40a7` (configuración en menú flotante, colores del editor y tema) y uno nuevo, `27b6c4e docs: actualizar bitácora IA Claude`.
+- **`docs/BITACORA.md`:** ya estaba al día. La Iteración 14 corresponde a ese commit, así que no la cambié.
+- **`docs/bitacora IA Claude.md`:** tenía la conversación que siguió al commit sin guardar. La subí en el commit nuevo, después de revisar que no tuviera correos ni tu nombre o matrícula.
+
+Esta conversación quedará como cambio pendiente en `docs/bitacora IA Claude.md` cuando el hook la vuelva a generar. Se incluirá en tu próximo commit.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 22:37
+
+agrega una opcion en la configuracion del horario, ya que hay clases que no tienen un apartado en classroom, valida para que no puedan poner una materia que ya tiene el usuario
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (5)</summary>
+
+- **Bash** — Explore project structure and schema
+- **Bash** — Read horario component and backend
+- **Bash** — Read config page, inicio, utils, api
+- **Bash** — Read classroom backend and auth routes
+- **Bash** — Read listarClases, materias utils, scripts
+
+</details>
+
+Ahora el backend: una tabla de materias propias y sus rutas.
+
+<details><summary>Acciones (2)</summary>
+
+- **Bash** — Add materias_propias table
+- **Bash** — Write materias propias service and routes
+
+</details>
+
+Ahora el frontend.
+
+<details><summary>Acciones (3)</summary>
+
+- **Bash** — List UI components
+- **Bash** — Add API calls and name validation helpers
+- **Bash** — Add materia propia UI to horario painter
+
+</details>
+
+Ahora conecto Configuración e Inicio.
+
+<details><summary>Acciones (2)</summary>
+
+- **Bash** — Wire up Configuración and Inicio, lint and build
+- **Bash** — Run linter and check backend env
+
+</details>
+
+No hay base de datos local (el `.env` apunta a la base remota), así que no voy a correr pruebas que escriban ahí. Pruebo la validación de nombres por separado:
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Test duplicate-name validation
+
+</details>
+
+Ajusto el mensaje: si la materia ya está activa, decir "actívala" no tiene sentido.
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Adjust duplicate message, rebuild
+
+</details>
+
+Ya está la opción para agregar materias que no tienen apartado en Classroom. Compila y el linter no marca nada, pero no la probé en la app: la base de datos es la remota y no quise escribir en ella. La validación de nombres sí la probé por separado.
+
+**Cómo funciona**
+- En **Configuración → Horario**, debajo de los pinceles, aparece el botón **"Otra materia (sin Classroom)"**. Abre un campo para escribir el nombre. La materia nueva queda como pincel y se pinta igual que las demás.
+- Cada materia propia tiene una **×** para quitarla. Si ya tiene horas pintadas, primero pide confirmación, porque también se borran sus horas.
+- En **Inicio → Horario** se ven junto con las de Classroom. Al hacer clic en una, no abre nada, porque no tiene página de clase.
+
+**Validación**
+No deja agregar un nombre igual a una de tus clases de Classroom ni a otra materia propia. La comparación ignora mayúsculas, acentos y espacios de más: "calculo  INTEGRAL" cuenta igual que "Cálculo Integral".
+- Se revisa al escribir, y el botón Agregar se desactiva si el nombre está repetido.
+- El servidor vuelve a revisarlo contra tu Classroom y responde con error si está repetido. Además, la base de datos no admite el mismo nombre dos veces por usuario, aunque se agregue desde dos pestañas a la vez.
+- Si el nombre ya está en Classroom, el mensaje dice: «X» ya está en tus clases de Classroom (si no la ves, actívala en Materias).
+- Las materias que no marcaste como activas cuentan como "ya las tienes" solo en la pantalla. El servidor solo compara contra tus clases de Classroom activas; si una de esas ya no está activa en Classroom, la pantalla la rechaza pero el servidor no.
+
+**Cambios en el código**
+- **Backend:** nueva tabla `materias_propias`, que se crea sola al arrancar el servidor. Rutas nuevas `GET/POST/DELETE /api/materias-propias` (el servicio está en `backend/src/modulos/horarios/materiasPropias.service.js`). En el horario, estas materias se guardan como `propia-<id>`.
+- **Frontend:** cambios en `HorarioPintable.jsx`, `Configuracion.jsx`, `Inicio.jsx`, `api.js` y `utils/materias.js`.
+
+No hice commit de nada. Siguen pendientes también el cambio del color del Título 1 y la bitácora de la conversación. ¿Lo subo todo junto? Si sí, agrego en `docs/BITACORA.md` la entrada de esta función, sin mencionar lo del color.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 22:43
+
+si
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Read last bitácora entry for format
+
+</details>

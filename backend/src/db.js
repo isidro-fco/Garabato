@@ -51,5 +51,15 @@ export async function crearTablas() {
     -- Colores del editor elegidos por el usuario, como JSON: { "negrita": "#e11d48", ... }.
     -- Solo los que cambió; los demás usan la paleta predeterminada del frontend.
     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS colores JSONB;
+
+    -- Materias que no tienen clase en Classroom (las agrega el usuario para su
+    -- horario). En la tabla horarios su curso_id es "propia-<id>".
+    CREATE TABLE IF NOT EXISTS materias_propias (
+      id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+      usuario_id TEXT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+      nombre     TEXT NOT NULL CHECK (length(nombre) BETWEEN 1 AND 80),
+      creado_en  TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS materias_propias_nombre_idx ON materias_propias (usuario_id, lower(nombre));
   `);
 }

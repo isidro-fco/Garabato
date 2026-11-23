@@ -99,3 +99,9 @@ export const listarHorarios = () => pedir('/api/horarios')
 // ({ cursoId, dia (0 = domingo), horaInicio: 'HH:MM', horaFin: 'HH:MM' }).
 // Los de otras materias se conservan. Devuelve el horario completo.
 export const guardarHorario = (cursos, bloques) => enviar('/api/horarios', 'PUT', { cursos, bloques })
+
+// --- Materias propias (sin clase en Classroom; ids "propia-<n>") ---
+export const listarMateriasPropias = () => pedir('/api/materias-propias')
+export const crearMateriaPropia = (nombre) => enviar('/api/materias-propias', 'POST', { nombre })
+export const eliminarMateriaPropia = (materiaId) =>
+  pedir(`/api/materias-propias/${id(materiaId.replace(/^propia-/, ''))}`, { method: 'DELETE' })

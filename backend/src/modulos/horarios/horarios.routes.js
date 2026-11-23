@@ -6,6 +6,13 @@ import {
   listarHorarios,
   reemplazarHorarios,
 } from './horarios.service.js';
+import {
+  crearMateriaPropia,
+  eliminarMateriaPropia,
+  ErrorMateriaRepetida,
+  listarMateriasPropias,
+} from './materiasPropias.service.js';
+import { ErrorClassroom } from '../classroom/classroom.service.js';
 
 // Hora en formato 24 h, "HH:MM".
 const hora = { type: 'string', pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$' };
@@ -32,7 +39,29 @@ export default async function horariosRoutes(app) {
 
   app.setErrorHandler((err, request, reply) => {
     if (err instanceof ErrorHorario) return reply.code(400).send({ error: err.message, codigo: 'horas_invalidas' });
+    if (err instanceof ErrorMateriaRepetida) return reply.code(409).send({ error: err.message, codigo: 'materia_repetida' });
+    // Al agregar una materia propia se revisa que no esté ya en Classroom.
+    if (err instanceof ErrorClassroom) return reply.code(err.status).send({ error: err.message, codigo: err.codigo });
     return reply.send(err);
+  });
+
+  // --- Materias propias: las que no tienen clase en Classroom ---
+  app.get('/api/materias-propias', (request) => listarMateriasPropias(request.usuarioId));
+
+  app.post('/api/materias-propias', {
+    schema: {
+      body: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['nombre'],
+        properties: { nombre: { type: 'string', minLength: 1, maxLength: 80, pattern: '\\S' } },
+      },
+    },
+  }, async (request, reply) => reply.code(201).send(await crearMateriaPropia(request.usuarioId, request.body.nombre)));
+
+  app.delete('/api/materias-propias/:id', { schema: conId }, async (request, reply) => {
+    const eliminada = await eliminarMateriaPropia(request.usuarioId, request.params.id);
+    return eliminada ? reply.code(204).send() : reply.code(404).send({ error: 'No se encontró la materia', codigo: 'no_encontrado' });
   });
 
   app.get('/api/horarios', (request) => listarHorarios(request.usuarioId));
