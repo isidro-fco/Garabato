@@ -64,7 +64,7 @@ export default function MisDocumentos() {
         )}
       />
 
-      {errorAccion && <MensajeError error={errorAccion} className="mb-4" />}
+      {errorAccion && <MensajeError error={errorAccion} className="mb-4" onReintentar={null} />}
       {documentos.cargando && <Cargando texto="Cargando tus documentos…" />}
       {documentos.error && <MensajeError error={documentos.error} />}
       {documentos.datos?.length === 0 && (

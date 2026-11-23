@@ -9,9 +9,35 @@ export class ErrorApi extends Error {
   }
 }
 
+// El plan gratis de Render se duerme tras 15 minutos sin uso y tarda hasta un
+// minuto en despertar. Mientras tanto, el proxy de Vercel puede responder
+// 502/503/504 o la conexión puede fallar: las consultas (GET) se reintentan
+// solas durante unos 75 segundos antes de mostrar el error.
+const ESPERAS = [2, 3, 5, 5, 10, 10, 10, 15, 15].map((s) => s * 1000)
+const esperar = (ms) => new Promise((resolver) => setTimeout(resolver, ms))
+// Un 502/503 que manda nuestro backend trae { error }; el del proxy no.
+const servidorDormido = (res, datos) => [502, 503, 504].includes(res.status) && !datos?.error
+
+async function intentar(ruta, opciones) {
+  try {
+    const res = await fetch(ruta, { credentials: 'include', ...opciones })
+    return { res, datos: await res.json().catch(() => null) }
+  } catch {
+    return { res: null, datos: null } // sin conexión
+  }
+}
+
 async function pedir(ruta, opciones = {}) {
-  const res = await fetch(ruta, { credentials: 'include', ...opciones })
-  const datos = await res.json().catch(() => null)
+  const consulta = !opciones.method || opciones.method === 'GET'
+  let { res, datos } = await intentar(ruta, opciones)
+  for (const espera of consulta ? ESPERAS : []) {
+    if (res && !servidorDormido(res, datos)) break
+    await esperar(espera)
+    ;({ res, datos } = await intentar(ruta, opciones))
+  }
+
+  if (!res) throw new ErrorApi(0, 'No hay conexión con el servidor.', 'red')
+  if (servidorDormido(res, datos)) throw new ErrorApi(res.status, 'El servidor no responde.', 'servidor')
 
   if (!res.ok) {
     // Sesión terminada o conexión con Google vencida: volver al login.
@@ -41,6 +67,8 @@ export const obtenerYo = () => pedir('/api/yo')
 export const cerrarSesion = () => pedir('/auth/logout', { method: 'POST' })
 // El login es una navegación completa (no fetch) porque pasa por la pantalla de Google.
 export const URL_LOGIN = '/auth/google'
+// Una petición ligera para que Render empiece a arrancar; no importa la respuesta.
+export const despertarServidor = () => fetch('/api/health').catch(() => {})
 
 // --- Classroom ---
 export const listarClases = () => pedir('/api/clases')

@@ -61,7 +61,7 @@ export default function Tarea() {
           <a href={tarea.enlace} target="_blank" rel="noreferrer"><ExternalLink />Abrir en Classroom</a>
         </Button>
       </div>
-      {errorCrear && <MensajeError error={errorCrear} className="mt-4" />}
+      {errorCrear && <MensajeError error={errorCrear} className="mt-4" onReintentar={null} />}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card>

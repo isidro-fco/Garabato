@@ -156,9 +156,9 @@ garabato/
 
 ## Fase 9: Pulido y entrega
 
-- [ ] Estados de carga (sobre todo por el arranque lento de Render) y mensajes de error claros.
-- [ ] Diseño responsivo básico y un estilo consistente con la estética minimalista del plan.
-- [ ] README con capturas, el stack y los pasos para correrlo localmente.
+- [x] Estados de carga (sobre todo por el arranque lento de Render) y mensajes de error claros.
+- [x] Diseño responsivo básico y un estilo consistente con la estética minimalista del plan.
+- [x] README con capturas, el stack y los pasos para correrlo localmente.
 - [ ] Preparar la demo: abrir la app unos minutos antes y tener un documento de ejemplo listo.
 
 ## Fuera de alcance por ahora

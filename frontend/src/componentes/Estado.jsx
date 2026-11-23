@@ -1,17 +1,31 @@
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2, RotateCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert, AlertDescription } from '@/componentes/ui/alert'
 import { Badge } from '@/componentes/ui/badge'
+import { Button } from '@/componentes/ui/button'
 import { cn } from '@/lib/utils'
 
 // Mensajes de carga y de error que comparten todas las páginas.
 
+// Si tarda más de unos segundos, casi siempre es el servidor despertando.
+const AVISO_LENTO = 'Está tardando más de lo normal. Si nadie usó la app en un rato, el servidor tarda hasta un minuto en despertar.'
+
 export function Cargando({ texto = 'Cargando…', className }) {
+  const [lento, setLento] = useState(false)
+  useEffect(() => {
+    const temporizador = setTimeout(() => setLento(true), 5000)
+    return () => clearTimeout(temporizador)
+  }, [])
+
   return (
-    <p className={cn('flex items-center gap-2 text-sm text-muted-foreground', className)} aria-live="polite">
-      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-      {texto}
-    </p>
+    <div className={cn('space-y-1.5 text-sm text-muted-foreground', className)} aria-live="polite">
+      <p className="flex items-center gap-2">
+        <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
+        {texto}
+      </p>
+      {lento && <p className="max-w-md pl-6 text-xs">{AVISO_LENTO}</p>}
+    </div>
   )
 }
 
@@ -19,13 +33,29 @@ const MENSAJES = {
   sin_permiso: 'Google no dio permiso para leer Classroom con esta cuenta. Si es una cuenta escolar, puede que tu institución bloquee apps externas.',
   no_encontrado: 'No se encontró. Puede que ya no tengas acceso a esta clase o tarea.',
   limite: 'Google está recibiendo demasiadas peticiones. Intenta de nuevo en un momento.',
+  classroom: 'No se pudo consultar Google Classroom. Intenta de nuevo en un momento.',
+  red: 'No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.',
+  servidor: 'El servidor no responde. Puede estar despertando; intenta de nuevo en unos segundos.',
 }
 
-export function MensajeError({ error, className }) {
+// Errores que se pueden arreglar con solo volver a intentar.
+const TEMPORALES = new Set(['limite', 'classroom', 'red', 'servidor'])
+
+// onReintentar: qué hacer al pulsar "Reintentar" (por defecto, recargar la página).
+// null cuando el error es de una acción (crear, borrar…): basta con volver a pulsarla.
+export function MensajeError({ error, className, onReintentar = () => window.location.reload() }) {
+  const temporal = TEMPORALES.has(error?.codigo) || error?.status >= 500
   return (
     <Alert variant="destructive" className={className}>
       <AlertCircle />
-      <AlertDescription>{MENSAJES[error?.codigo] ?? error?.message ?? 'Algo salió mal.'}</AlertDescription>
+      <AlertDescription className="[&_p:not(:last-child)]:mb-2">
+        <p>{MENSAJES[error?.codigo] ?? error?.message ?? 'Algo salió mal.'}</p>
+        {temporal && onReintentar && (
+          <Button size="sm" variant="outline" onClick={onReintentar}>
+            <RotateCw />Reintentar
+          </Button>
+        )}
+      </AlertDescription>
     </Alert>
   )
 }

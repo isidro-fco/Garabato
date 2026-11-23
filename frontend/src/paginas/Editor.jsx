@@ -179,7 +179,7 @@ function EditorDocumento({ doc }) {
             </Button>
           </div>
         </div>
-        {errorExportar && <MensajeError error={errorExportar} />}
+        {errorExportar && <MensajeError error={errorExportar} onReintentar={null} />}
 
         <label className="sr-only" htmlFor="editor-titulo">Título</label>
         <input

@@ -16,14 +16,14 @@ export default function RutaPrivada({ conBarra = true }) {
       .catch((error) => setEstado({ cargando: false, usuario: null, error }))
   }, [])
 
-  if (estado.cargando) return <Cargando className="m-8" />
+  if (estado.cargando) return <Cargando texto="Conectando con Garabato…" className="m-8" />
 
   if (estado.error?.status === 401) return <Navigate to="/login" replace />
 
   if (estado.error) {
     return (
       <div className="m-8 max-w-lg">
-        <MensajeError error={{ message: `No se pudo conectar con el servidor: ${estado.error.message}` }} />
+        <MensajeError error={estado.error} />
       </div>
     )
   }

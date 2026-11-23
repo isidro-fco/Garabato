@@ -1,5 +1,7 @@
+import { Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { URL_LOGIN } from '../api.js'
+import { despertarServidor, URL_LOGIN } from '../api.js'
 import { MensajeError } from '../componentes/Estado.jsx'
 import { Button } from '@/componentes/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/componentes/ui/card'
@@ -23,6 +25,16 @@ function LogoGoogle() {
 export default function Login() {
   const [params] = useSearchParams()
   const error = params.get('error')
+  const [entrando, setEntrando] = useState(false)
+
+  // Mientras la persona lee la pantalla, el servidor de Render va despertando.
+  useEffect(() => {
+    despertarServidor()
+    // Si regresa con el botón "Atrás" del navegador, el botón vuelve a su estado normal.
+    const alRegresar = (e) => e.persisted && setEntrando(false)
+    window.addEventListener('pageshow', alRegresar)
+    return () => window.removeEventListener('pageshow', alRegresar)
+  }, [])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
@@ -34,11 +46,16 @@ export default function Login() {
         <CardContent className="space-y-4">
           {error && <MensajeError error={{ message: ERRORES[error] ?? 'No se pudo iniciar sesión. Inténtalo de nuevo.' }} />}
           <Button asChild size="lg" variant="outline" className="w-full">
-            <a href={URL_LOGIN}>
-              <LogoGoogle />
-              Iniciar sesión con Google
+            <a href={URL_LOGIN} onClick={() => setEntrando(true)} aria-disabled={entrando}>
+              {entrando ? <Loader2 className="animate-spin" aria-hidden="true" /> : <LogoGoogle />}
+              {entrando ? 'Conectando con Google…' : 'Iniciar sesión con Google'}
             </a>
           </Button>
+          {entrando && (
+            <p className="text-center text-xs text-muted-foreground" aria-live="polite">
+              Si la app no se usó en un rato, el servidor puede tardar hasta un minuto en responder.
+            </p>
+          )}
         </CardContent>
       </Card>
     </main>

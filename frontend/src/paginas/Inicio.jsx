@@ -149,6 +149,8 @@ function Horario({ clases }) {
   }))
   // ¿Hay clases en fin de semana? Si no, la semana va de lunes a viernes.
   const conFinDeSemana = horarios.some((h) => h.dia === 0 || h.dia === 6)
+  // En celular se ve un día: si hoy no hay clases, abre en el siguiente día que sí tenga.
+  const diaInicial = siguienteDiaConClase(horarios)
 
   return (
     <div className="space-y-3">
@@ -165,6 +167,7 @@ function Horario({ clases }) {
           key={esMovil ? 'dia' : 'semana'}
           plugins={[timeGridPlugin]}
           initialView={esMovil ? 'timeGridDay' : 'timeGridWeek'}
+          initialDate={esMovil ? diaInicial : undefined}
           // El horario se repite cada semana: en escritorio no hace falta navegar.
           headerToolbar={esMovil ? { left: 'title', right: 'today prev,next' } : false}
           dayHeaderFormat={esMovil ? { weekday: 'long', day: 'numeric' } : { weekday: 'long' }}
@@ -180,4 +183,12 @@ function Horario({ clases }) {
       </div>
     </div>
   )
+}
+
+// Hoy o el siguiente día de la semana con alguna clase (hoy si no hay horario).
+function siguienteDiaConClase(horarios) {
+  const fecha = new Date()
+  const dias = new Set(horarios.map((h) => h.dia))
+  for (let i = 0; i < 7 && dias.size && !dias.has(fecha.getDay()); i++) fecha.setDate(fecha.getDate() + 1)
+  return fecha
 }

@@ -61,7 +61,7 @@ function EditorHorario({ clases, inicial }) {
 
   return (
     <div className="space-y-3">
-      {errorAccion && <MensajeError error={errorAccion} />}
+      {errorAccion && <MensajeError error={errorAccion} onReintentar={null} />}
       {clases.map((clase) => (
         <HorarioClase
           key={clase.id}

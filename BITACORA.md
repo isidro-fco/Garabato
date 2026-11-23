@@ -202,3 +202,30 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - `redirect_uri_mismatch` de Google: faltaba registrar la URI de producción en el cliente OAuth.
 
 **Resultado:** la app funciona en producción con el login de Google. ✅
+
+---
+
+## Iteración 10 — Fase 9: Pulido y entrega (22 nov 2026)
+
+**Arranque lento de Render**
+- `api.js`: si el servidor está dormido (502/503/504 del proxy o sin conexión), las consultas GET se reintentan solas durante unos 75 s. Las acciones (POST, PATCH, DELETE) no se reintentan, para no duplicar documentos.
+- `Cargando`: si tarda más de 5 s, avisa que el servidor puede tardar hasta un minuto en despertar.
+- Login: al abrir la página despierta al servidor con `/api/health`, y el botón muestra "Conectando con Google…".
+
+**Mensajes de error**
+- Mensajes claros para sin conexión, servidor dormido y fallo de Classroom.
+- Botón "Reintentar" cuando una página no pudo cargar; en los errores de una acción solo sale el mensaje.
+
+**Diseño**
+- Revisión de las 9 páginas en escritorio y celular, en modo claro y oscuro: sin desbordes ni errores en consola.
+- En celular, el horario abre en el siguiente día con clases si hoy no hay.
+
+**README**
+- Enlace a la app, lista de funciones, capturas (`docs/capturas/`), stack, estructura de carpetas y guía para la demo.
+
+**Pruebas**
+- Backend falso que simula a Render dormido: carga sola al despertar, aviso de espera, error claro con Reintentar y POST sin reintentos (9/9).
+
+**Pendiente:** preparar la demo el día de la presentación (pasos en el README).
+
+**Resultado:** la app aguanta el arranque lento de Render y el README la presenta con capturas. ✅
