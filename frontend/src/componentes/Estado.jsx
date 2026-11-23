@@ -31,7 +31,6 @@ export function Cargando({ texto = 'Cargando…', className }) {
 
 const MENSAJES = {
   sin_permiso: 'Google no dio permiso para leer Classroom con esta cuenta. Si es una cuenta escolar, puede que tu institución bloquee apps externas.',
-  no_encontrado: 'No se encontró. Puede que ya no tengas acceso a esta clase o tarea.',
   limite: 'Google está recibiendo demasiadas peticiones. Intenta de nuevo en un momento.',
   classroom: 'No se pudo consultar Google Classroom. Intenta de nuevo en un momento.',
   red: 'No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.',

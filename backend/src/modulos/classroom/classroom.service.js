@@ -27,7 +27,7 @@ function traducirError(err) {
   }
   if (status === 401) return reconectar();
   if (status === 403) return sinPermiso();
-  if (status === 404) return new ErrorClassroom(404, 'no_encontrado', 'No se encontró la clase o la tarea');
+  if (status === 404) return new ErrorClassroom(404, 'no_encontrado', 'No se encontró la clase o la tarea. Puede que ya no tengas acceso a ella.');
   if (status === 429) return new ErrorClassroom(503, 'limite', 'Google está limitando las peticiones. Intenta en un momento.');
   return err;
 }

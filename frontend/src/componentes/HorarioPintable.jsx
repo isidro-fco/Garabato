@@ -88,6 +88,14 @@ export default function HorarioPintable({ clases: deClassroom, todasClases = deC
   // Si la celda ya es de la materia elegida, el trazo borra; si no, pinta.
   const modoPara = (clave) => (pincel === BORRADOR || actuales.current.get(clave) === pincel ? 'borrar' : 'pintar')
 
+  // Si se cierra o recarga la pestaña a medio guardar, el navegador pide confirmar.
+  useEffect(() => {
+    if (estado !== 'guardando') return
+    const avisar = (e) => e.preventDefault()
+    window.addEventListener('beforeunload', avisar)
+    return () => window.removeEventListener('beforeunload', avisar)
+  }, [estado])
+
   // El trazo termina al soltar el botón en cualquier parte de la página.
   useEffect(() => {
     function soltar() {
@@ -329,6 +337,7 @@ function NuevaMateria({ clases, propias, onAgregada }) {
   const [abierto, setAbierto] = useState(false)
   const [nombre, setNombre] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const enCurso = useRef(false) // el estado tarda un render; el ref no
   const [errorServidor, setErrorServidor] = useState(null)
   const idCampo = useId()
 
@@ -352,7 +361,8 @@ function NuevaMateria({ clases, propias, onAgregada }) {
 
   async function agregar(e) {
     e.preventDefault()
-    if (!limpio || repetido || enviando) return
+    if (!limpio || repetido || enCurso.current) return
+    enCurso.current = true
     setEnviando(true)
     setErrorServidor(null)
     try {
@@ -361,6 +371,7 @@ function NuevaMateria({ clases, propias, onAgregada }) {
     } catch (err) {
       setErrorServidor(err.message)
     } finally {
+      enCurso.current = false
       setEnviando(false)
     }
   }

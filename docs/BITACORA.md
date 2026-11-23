@@ -331,3 +331,24 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Validación de nombres repetidos (Classroom, propias, acentos y espacios) y build del frontend. Falta probarla en la app.
 
 **Resultado:** el horario puede incluir clases que no tienen apartado en Classroom, sin duplicar materias. ✅
+
+## Iteración 16 — Pruebas de casos límite (22 nov 2026)
+
+**Backend**
+- `src/app.js` arma la app (la usan `server.js` y las pruebas).
+- Guardar el horario dos veces a la vez ya no duplica bloques (un guardado a la vez por usuario, `FOR UPDATE`).
+- Se quita el carácter nulo (`\u0000`, p. ej. al pegar de un PDF), que causaba error 500.
+- Sin conversión de tipos: un número donde va texto (o al revés) responde 400.
+- Errores en español y sin detalles internos: datos inválidos → 400 `datos_invalidos`; id con formato inválido en la URL → 404; error 500 genérico.
+
+**Frontend**
+- `LimiteErrores.jsx`: si una página falla al mostrarse, aparece un aviso con "Recargar" e "Ir al inicio" en lugar de la pantalla en blanco; la barra lateral sigue visible.
+- "Agregar materia" envía una sola vez aunque se pulse varias veces seguidas.
+- Al cerrar o recargar mientras se guarda el horario, el navegador pide confirmar.
+- "No encontrado" muestra el mensaje del servidor (documento, clase o tarea).
+
+**Pruebas**
+- `backend/test/casos-limite.test.js` (`npm test`): 38/38 contra la base `dev` con usuarios temporales y Classroom simulado. Cubre sesión, campos vacíos, tipos equivocados, textos al límite, ids inválidos, JSON mal formado, documentos de más de 4 MB, doble clic, datos de otro usuario y listas vacías.
+- Prueba en Chrome: nombres vacíos, repetidos y largos; triple clic en Agregar; doble clic en "Nuevo documento"; título de 250 letras; recargar a medio escribir y a medio pintar; quitar una materia con horas; enlaces inexistentes; servidor sin respuesta y recuperación; página que falla.
+
+**Resultado:** la app avisa con mensajes claros o impide la acción en los casos límite, sin pantallas en blanco, errores 500 ni datos duplicados. ✅

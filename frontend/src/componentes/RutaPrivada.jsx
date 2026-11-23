@@ -5,6 +5,7 @@ import { hayElegidos, leerColores, normalizar, usarColores } from '../utils/colo
 import Bienvenida from '../paginas/Bienvenida.jsx'
 import BarraLateral from './BarraLateral.jsx'
 import { Cargando, MensajeError } from './Estado.jsx'
+import LimiteErrores from './LimiteErrores.jsx'
 
 // Envuelve las rutas privadas: si no hay sesión, manda a /login.
 // En el primer acceso pide escoger las materias (Bienvenida).
@@ -70,7 +71,10 @@ export default function RutaPrivada({ conBarra = true }) {
       <BarraLateral usuario={estado.usuario} />
       {/* El editor usa todo el ancho; las demás páginas, máximo 6xl. */}
       <main className="mx-auto w-full max-w-6xl min-w-0 px-4 py-5 md:px-10 md:py-8 has-[.editor]:max-w-none">
-        <Outlet context={contexto} />
+        {/* Si la página falla, la barra lateral sigue disponible. */}
+        <LimiteErrores>
+          <Outlet context={contexto} />
+        </LimiteErrores>
       </main>
     </div>
   )

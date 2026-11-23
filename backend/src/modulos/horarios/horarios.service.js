@@ -76,6 +76,9 @@ export async function reemplazarHorarios(usuarioId, cursos, bloques) {
   const cliente = await pool.connect();
   try {
     await cliente.query('BEGIN');
+    // Un guardado a la vez por usuario: si llegan dos juntos (dos pestañas,
+    // reintentos), el segundo espera al primero y no se duplican los bloques.
+    await cliente.query('SELECT 1 FROM usuarios WHERE id = $1 FOR UPDATE', [usuarioId]);
     await cliente.query('DELETE FROM horarios WHERE usuario_id = $1 AND curso_id = ANY($2)', [usuarioId, cursos]);
     for (const { cursoId, dia, horaInicio, horaFin } of bloques) {
       await cliente.query(

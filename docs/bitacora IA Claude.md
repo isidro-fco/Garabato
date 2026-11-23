@@ -5,7 +5,7 @@ Se incluyen los mensajes del usuario y las respuestas de Claude; las acciones qu
 
 Este archivo se actualiza solo al terminar cada respuesta (hook de Claude Code, `.claude/hooks/exportar-chat.py`).
 
-- Última actualización: 22/11/2026 22:43
+- Última actualización: 22/11/2026 23:18
 - Conversaciones: 3
 
 
@@ -4101,8 +4101,394 @@ si
 
 ### 🤖 Claude
 
-<details><summary>Acciones (1)</summary>
+<details><summary>Acciones (2)</summary>
 
 - **Bash** — Read last bitácora entry for format
+- **Bash** — Add bitácora entry, regenerate, commit and push
 
 </details>
+
+Ya está en GitHub como el commit `fed102c` (`feat: materias sin Classroom en el horario`).
+
+- **`docs/BITACORA.md`:** agregué la Iteración 15, solo con lo de las materias sin Classroom. Ahí dice que falta probar la función en la app.
+- **`docs/bitacora IA Claude.md`:** la volví a generar antes del commit. El mensaje del color del Título 1 no aparece.
+
+Un error mío: en el mensaje del commit puse la línea "Título 1 en rojo". No es una bitácora, pero queda en el historial de git. Si quieres que no aparezca, puedo corregir el mensaje y volver a subir el commit con `git push --force`. Eso reescribe el historial de GitHub, así que solo lo hago si me lo confirmas.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 22:53
+
+has pruebas con casos limite
+
+
+<pasted_content id="ff41">
+Cuando haces tu demo, sigues el camino feliz: llenas todo bien, hay internet y los datos son normales. Un caso límite es usar tu app de una forma que no estaba en ese camino, como lo haría un usuario real distraído o con mala suerte.
+
+Ejemplos de lo que te puedo pedir:
+- Enviar un formulario con campos vacíos.
+- Escribir texto donde se espera un número, o un número negativo.
+- Escribir un texto muy largo (un nombre de 200 letras).
+- Buscar algo que no existe.
+- Dar clic dos veces seguidas al botón de guardar.
+- Recargar la página a mitad de un proceso.
+- Que la API o el servidor tarde o no responda.
+- Ver una lista que todavía no tiene ningún elemento.
+
+No pierdes puntos porque algo falle. Pierdes puntos si la app se rompe sin avisar: pantalla en blanco, error en consola o datos duplicados. Lo ideal es que muestre un mensaje claro, impida la acción o se recupere. Si algo falla y tú sabes explicar por qué pasa y cómo lo arreglarías, también cuenta.
+</pasted_content id="ff41">
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Inspect test setup and env keys
+
+</details>
+
+Primero reviso cómo arranca el servidor y cómo maneja la sesión, para armar pruebas automáticas contra la base `dev` con usuarios temporales, como en las iteraciones anteriores.
+
+<details><summary>Acciones (6)</summary>
+
+- **Bash** — Read auth plugin, server and routes
+- **Bash** — Write and run backend edge-case tests
+- **Bash** — Run backend edge-case tests
+- **Bash** — Read documentos service
+- **Bash** — Refactor app, apply fixes, rerun tests
+- **Bash** — Fix mock exports, rerun tests
+
+</details>
+
+Las 37 pruebas pasan. Reviso que el servidor real siga arrancando con el cambio a `app.js`:
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Smoke-test real server and check editor title limit
+
+</details>
+
+El backend está bien. Ahora reviso los casos límite de la interfaz en el navegador. Cargo la herramienta de Chrome:
+
+<details><summary>Acciones (2)</summary>
+
+- **Skill** — anthropic-skills:chrome-browser
+- **Bash** — Check dev proxy and running servers
+
+</details>
+
+Ya tienes el backend y el frontend corriendo. Reviso que el backend se haya recargado bien con los cambios y abro Chrome:
+
+<details><summary>Acciones (5)</summary>
+
+- **Bash** — Check running backend health
+- **ToolSearch**
+- **Bash** — Check backend runs new code
+- **Bash** — Look for error boundary and unload handling
+- **Bash** — Read App.jsx and autosave unload handling
+
+</details>
+
+El autoguardado ya cubre cerrar o recargar la pestaña a medio guardar: manda lo pendiente con `keepalive` y, si no alcanza, pide confirmación. Lo que falta es el *error boundary*. Lo agrego:
+
+<details><summary>Acciones (3)</summary>
+
+- **Bash** — Read MensajeError component
+- **Bash** — Add error boundary and build
+- **Bash** — Reindent routes, rebuild
+
+</details>
+
+Listo. Hice las pruebas de casos límite del backend, corregí lo que se rompía y agregué una protección en el frontend. No hice commit.
+
+**Backend: 37 pruebas automáticas, todas pasan**
+Están en `backend/test/casos-limite.test.js` y se corren con `npm test` dentro de `backend/`. Usan la base `dev` con usuarios temporales que se borran al final. Classroom se simula, así que también se prueba cuando falla. Cubren:
+- Sesión: sin iniciar, cookie alterada, usuario que ya no existe.
+- Campos vacíos o con solo espacios, y texto donde va número o al revés.
+- Textos al límite: título de 200 contra 201 letras, materia de 80 contra 81 y 200.
+- Ids negativos o inexistentes, JSON mal formado, documento de más de 4 MB.
+- Doble clic al guardar o agregar.
+- Un usuario intentando ver o borrar lo de otro.
+- Listas vacías y búsquedas sin resultados.
+
+**Fallos que encontraron, ya corregidos**
+1. **Bloques duplicados en el horario:** si dos guardados llegaban al mismo tiempo (dos pestañas o reintentos), quedaban 6 bloques en vez de 2. Ahora cada usuario guarda uno a la vez (`FOR UPDATE`).
+2. **Error 500 con el carácter nulo (`\u0000`):** pasaba al pegar texto copiado de un PDF, y el documento no se podía guardar. Además, la respuesta mostraba el error interno de Postgres. Ahora el servidor quita ese carácter, y cualquier error 500 responde con un mensaje genérico en español.
+3. **Tipos que se convertían solos:** un número donde va texto (como una materia llamada `42`) o `"1"` donde va número se aceptaban convertidos. Ahora responden 400.
+
+Para que las pruebas usen la misma configuración que producción, moví la construcción de la app a `backend/src/app.js`. El servidor real arranca bien con este cambio.
+
+**Frontend**
+- **Pantalla en blanco:** no había protección contra ella. Si una página fallaba al dibujarse, o no se descargaba sin internet o después de un despliegue, quedaba en blanco. Agregué `LimiteErrores.jsx`, que muestra un aviso con botones "Recargar" e "Ir al inicio".
+- **Recargar a medio guardar:** el editor ya lo maneja, porque manda lo pendiente al cerrar la pestaña y, si no alcanza, pide confirmación.
+- **Servidor dormido o sin respuesta:** también estaba cubierto con reintentos y un mensaje claro.
+- **Doble clic en "Agregar materia":** el botón se desactiva mientras envía.
+
+**Falta probarlo en el navegador.** La extensión de Chrome no está conectada en esta sesión, así que la interfaz solo la revisé en el código. Si la conectas, pruebo esto:
+- Agregar una materia vacía o repetida, y dar doble clic en Agregar.
+- Pintar el horario y recargar a la mitad.
+- Detener el backend y navegar, para ver los mensajes de error.
+- Abrir un documento inexistente como `/documentos/999999`.
+
+¿Hago el commit con su entrada en `docs/BITACORA.md`?
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:03
+
+listo, prueba en brave
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (2)</summary>
+
+- **ToolSearch**
+- **ToolSearch**
+
+</details>
+
+Todavía no puedo usar Brave. En esta sesión de Claude Code no aparecen las herramientas de Claude in Chrome: lo único que encuentro con ese nombre son conectores de Google Docs, Figma y otros, nada del navegador. Aunque ya tengas la extensión instalada en Brave, Claude Code no se ha conectado a ella.
+
+Para conectarla:
+1. Escribe `/chrome` aquí en Claude Code y elige activar la extensión. Si no aparece la opción, cierra Claude Code y ábrelo de nuevo con `claude --chrome`.
+2. Abre Brave con la extensión Claude in Chrome activa y con tu sesión iniciada.
+3. Inicia sesión en Garabato una vez en `http://localhost:5173`. El backend y el frontend ya están corriendo.
+
+Cuando esté conectada, dime y pruebo estos casos:
+- Agregar una materia vacía, repetida o de 80 letras o más, y dar doble clic en Agregar.
+- Pintar el horario y recargar a la mitad.
+- Abrir `/documentos/999999` y otros enlaces inexistentes.
+- Detener el backend y navegar, para ver los mensajes de "sin conexión".
+- Revisar la consola en busca de errores.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:06
+
+listo, ya esta en chrome
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (2)</summary>
+
+- **ToolSearch**
+- **ToolSearch**
+
+</details>
+
+Sigo sin acceso: en esta sesión no aparece ninguna herramienta de Claude in Chrome. Las herramientas se cargan al iniciar Claude Code, así que conectar la extensión con la sesión ya abierta no basta.
+
+Para que funcione:
+1. Cierra esta sesión de Claude Code.
+2. Ábrela de nuevo con `claude --chrome --continue`. Así retomas esta misma conversación con el navegador conectado.
+3. Ten abierto Chrome (o Brave) con la extensión y tu sesión iniciada en `http://localhost:5173`.
+
+Lo que queda sin commit, para que no se pierda al reiniciar:
+- La función de materias sin Classroom ya está subida. Lo pendiente es la suite de casos límite (`backend/test/`).
+- Las correcciones del backend (`app.js`, horario sin duplicados, carácter nulo, sin conversión de tipos).
+- El aviso contra la pantalla en blanco (`LimiteErrores.jsx`).
+
+Todo eso ya está guardado en los archivos, así que no se pierde. Cuando vuelvas, pruebo la interfaz y después hago el commit con su entrada en `docs/BITACORA.md`.
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:07
+
+continua
+
+
+### 🤖 Claude
+
+<details><summary>Acciones (7)</summary>
+
+- **ToolSearch**
+- **mcp__claude-in-chrome__tabs_context_mcp**
+- **AskUserQuestion**
+- **ToolSearch**
+- **mcp__claude-in-chrome__select_browser**
+- **mcp__claude-in-chrome__tabs_context_mcp**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Ya tengo sesión iniciada. Espero a que cargue el horario:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Funciona: con espacios, el botón Agregar queda desactivado, y ambos nombres repetidos muestran su mensaje. Ahora pruebo 200 letras y doble clic en Agregar con un nombre válido:
+
+<details><summary>Acciones (1)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Las 200 letras se cortan en 80. Ahora el doble clic en Agregar (lo hago con un `dblclick` real sobre el botón):
+
+<details><summary>Acciones (5)</summary>
+
+- **mcp__claude-in-chrome__javascript_tool**
+- **mcp__claude-in-chrome__computer**
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__javascript_tool**
+
+</details>
+
+Quitar la materia funciona: pide confirmación con el número de horas, la borra y borra también su bloque del sábado. Ahora los enlaces que no existen:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **Bash** — Read error messages map
+
+</details>
+
+Corrijo los dos mensajes, el triple clic y el aviso al salir mientras se guarda:
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Apply fixes, update tests, run tests and build
+
+</details>
+
+38 de 38 pasan. Lo verifico en el navegador:
+
+<details><summary>Acciones (3)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__javascript_tool**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Muestra "Conectando con Garabato…" con el aviso de que el servidor puede estar despertando. Espero a que se acaben los reintentos (unos 75 s):
+
+<details><summary>Acciones (3)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Se recupera bien. Ahora el doble clic en "Nuevo documento", que podría crear documentos duplicados. Reviso primero el código:
+
+<details><summary>Acciones (1)</summary>
+
+- **Bash** — Find new-document creation guards
+
+</details>
+
+Usa el mismo patrón que tenía "Agregar materia". Lo pruebo con un doble clic real del mouse y cuento los documentos antes y después:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__javascript_tool**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Con un doble clic real se crea un solo documento (el 29) y abre el editor. Ahora pruebo escribir y recargar de inmediato, antes del autoguardado:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__computer**
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+El texto se guardó pese a la recarga inmediata, con ñ y emoji, y el Título 1 ya sale en rojo. Ahora un título de 250 letras:
+
+<details><summary>Acciones (1)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+El título se corta en 200 letras y se guarda así. Reviso que el título largo no desborde la página ni la lista de documentos:
+
+<details><summary>Acciones (10)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__javascript_tool**
+- **Bash** — Temporarily make Clases page throw
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__browser_batch**
+- **Bash** — Find Outlet in layout
+- **Bash** — Read RutaPrivada layout
+- **Bash** — Add inner error boundary around page outlet
+- **Bash** — Make boundary padding configurable, build
+- **mcp__claude-in-chrome__browser_batch**
+
+</details>
+
+Ahora la barra lateral sigue visible. Compruebo que al cambiar de página el error se limpia, y luego quito la falla de prueba:
+
+<details><summary>Acciones (2)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **Bash** — Revert temporary failure in Clases
+
+</details>
+
+Al cambiar de página, la app se recupera sola. Quité la falla de prueba y el documento de prueba ya no está. Por último reviso el horario de Inicio con tus materias propias y la consola:
+
+<details><summary>Acciones (3)</summary>
+
+- **mcp__claude-in-chrome__browser_batch**
+- **mcp__claude-in-chrome__tabs_close_mcp**
+- **Bash** — Show pending changes and rerun tests
+
+</details>
+
+Terminé las pruebas en el navegador con tu cuenta real y corregí lo que encontré. Las 38 pruebas del backend pasan y nada está en commit todavía.
+
+**Casos probados en Chrome**
+
+| Caso | Resultado |
+|---|---|
+| Materia con nombre vacío o solo espacios | El botón Agregar se desactiva ✅ |
+| Nombre repetido ("APLICACIONES   web", "computo bioinspirádo") | Mensaje claro y no se guarda ✅ |
+| Nombre de 200 letras | El campo lo corta en 80 ✅ |
+| Triple clic en Agregar | Antes salían 3 peticiones (el servidor solo creaba una); ahora sale una ✅ |
+| Doble clic en "Nuevo documento" | Se crea un solo documento ✅ |
+| Título de 250 letras | Se corta en 200, se recorta con "…" en la lista y no desborda ✅ |
+| Escribir y recargar de inmediato | El texto, con ñ y emoji, se conserva ✅ |
+| Pintar el horario y recargar al instante | Se guardaba, pero la tabla se veía sin el cambio; ahora el navegador avisa antes de salir ✅ |
+| Quitar una materia con horas | Pide confirmación con el número de horas y borra también sus bloques ✅ |
+| `/documentos/999999` | "No se encontró el documento" (antes decía "clase o tarea") ✅ |
+| `/documentos/abc` | "No se encontró. Revisa el enlace." (antes salía el error técnico en inglés) ✅ |
+| Servidor sin responder | "Conectando…", luego aviso de que tarda y después "No hay conexión" con Reintentar, que recupera la app ✅ |
+| Una página que falla al dibujarse | Antes quedaba la pantalla en blanco; ahora sale un aviso con la barra lateral visible, y al cambiar de página se recupera ✅ |
+
+**Correcciones de esta ronda**
+- **Backend:** mensajes de error en español y sin detalles internos.
+- **Frontend:**
+  - Un solo envío al agregar una materia, aunque se pulse varias veces.
+  - Aviso al cerrar o recargar mientras se guarda el horario.
+  - El aviso de error queda dentro de la página y la barra lateral sigue visible.
+
+**Datos de prueba que creé y borré:** dos materias, "Prueba límite QA" y "Prueba QA dos", y un documento (el 29). Tu horario y tus documentos quedaron como estaban.
+
+**Pendiente:** con 9 materias, la novena repite el azul de la primera, porque la paleta tiene 8 colores. Es solo visual; ¿le agrego más colores?
+
+¿Hago el commit con su entrada en `docs/BITACORA.md` y lo subo?
+
+
+---
+
+### 🧑 Usuario · 22/11/2026 23:17
+
+has el commit y subelo
