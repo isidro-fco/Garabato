@@ -360,3 +360,16 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Se probó un logo a partir de una imagen generada, pero se descartó; la app conserva el ícono anterior.
 
 **Resultado:** el proyecto documenta sus decisiones principales junto a la bitácora y la conversación con la IA. ✅
+
+## Iteración 18 — Logo y paleta de colores (22 nov 2026)
+
+**Frontend**
+- Logo nuevo: un gato en ilustración plana sin fondo, con contorno lima neón. Favicon (`favicon.ico`, `favicon-32.png`), íconos para celular (`logo-192.png`, `apple-touch-icon.png`) y `logo.webp` en la barra lateral, el login y la bienvenida. Se quitó el `favicon.svg` de la plantilla de Vite.
+- Paleta tomada del logo (`index.css`): carbón con tono violeta, lima neón (`#ccf000`) y blanco. En modo claro los botones son carbón con texto lima; en oscuro, lima con texto carbón. El lima marca la sección activa, el foco y el día de hoy en el calendario.
+- `theme-color` para la barra del navegador en celular (claro y oscuro) y miniaturas del selector de tema con los colores nuevos.
+- Sin cambios: los colores de cada materia, los del editor de Markdown y el PDF.
+
+**Pruebas**
+- Revisión en Chrome en modo claro y oscuro: barra lateral, inicio con calendario, documentos, configuración, tema y login; logo legible desde 16 px.
+
+**Resultado:** Garabato tiene logo propio y una paleta que lo acompaña en toda la app. ✅

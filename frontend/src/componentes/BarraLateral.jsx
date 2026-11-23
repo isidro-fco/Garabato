@@ -25,7 +25,10 @@ export default function BarraLateral({ usuario }) {
 
   return (
     <aside className="sticky top-0 z-10 flex items-center gap-2 border-b bg-sidebar px-3 py-2 md:h-screen md:flex-col md:items-stretch md:gap-6 md:border-r md:border-b-0 md:px-3 md:py-5">
-      <Link to="/" className="hidden px-2 text-lg font-semibold tracking-tight md:block">Garabato</Link>
+      <Link to="/" className="flex shrink-0 items-center gap-2 rounded-lg px-1 text-lg font-semibold tracking-tight md:px-2" aria-label="Garabato, ir al inicio">
+        <img src="/logo.webp" alt="" width="32" height="32" className="size-8" />
+        <span className="hidden md:inline">Garabato</span>
+      </Link>
 
       <nav aria-label="Principal" className="flex min-w-0 flex-1 gap-1 overflow-x-auto [scrollbar-width:none] md:flex-none md:flex-col">
         {ENLACES.map(([ruta, texto, Icono]) => (
@@ -41,7 +44,8 @@ export default function BarraLateral({ usuario }) {
           >
             {({ isActive }) => (
               <>
-                <Icono className="size-4" aria-hidden="true" />
+                {/* La sección actual lleva el lima del logo en su ícono. */}
+                <Icono className={cn('size-4', isActive && 'text-(--lima-oscuro) dark:text-(--lima)')} aria-hidden="true" />
                 {/* En pantallas angostas solo la sección actual muestra su nombre. */}
                 <span className={cn(!isActive && 'sr-only sm:not-sr-only')}>{texto}</span>
               </>

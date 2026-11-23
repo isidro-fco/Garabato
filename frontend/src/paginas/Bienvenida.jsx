@@ -14,7 +14,10 @@ export default function Bienvenida({ usuario, onGuardar, onOmitir }) {
     <main className="flex min-h-screen items-start justify-center bg-muted/40 px-4 py-10 sm:items-center">
       <div className="w-full max-w-2xl space-y-6 rounded-xl border bg-card p-5 shadow-xs sm:p-8">
         <header className="space-y-1.5">
-          <p className="text-sm text-muted-foreground">Garabato</p>
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <img src="/logo.webp" alt="" width="24" height="24" className="size-6" />
+            Garabato
+          </p>
           <h1 className="text-2xl font-semibold tracking-tight">Hola, {usuario.nombre.split(' ')[0]}</h1>
           <p className="text-sm text-muted-foreground">
             Escoge las materias que estás cursando. Solo esas aparecerán en tus clases, tu calendario y tu horario.

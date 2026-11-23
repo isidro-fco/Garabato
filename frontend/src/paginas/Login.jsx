@@ -40,6 +40,7 @@ export default function Login() {
     <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
+          <img src="/logo.webp" alt="" width="96" height="96" className="mx-auto mb-1 size-24" />
           <CardTitle className="text-2xl font-semibold tracking-tight">Garabato</CardTitle>
           <CardDescription>Tus documentos y tareas de Classroom en un solo lugar.</CardDescription>
         </CardHeader>

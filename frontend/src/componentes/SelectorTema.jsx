@@ -46,8 +46,8 @@ export default function SelectorTema() {
 // Dibujo de la app: barra lateral y una hoja con renglones.
 function Miniatura({ oscura }) {
   const c = oscura
-    ? { fondo: '#0a0a0a', barra: '#171717', hoja: '#262626', linea: '#525252', titulo: '#ff5c57' }
-    : { fondo: '#ffffff', barra: '#f5f5f5', hoja: '#ffffff', linea: '#d4d4d4', titulo: '#d32f2f' }
+    ? { fondo: '#16161d', barra: '#1d1c25', hoja: '#262530', linea: '#4f4d5c', titulo: '#ff5c57' }
+    : { fondo: '#fcfbfd', barra: '#f4f3f7', hoja: '#ffffff', linea: '#dcdae2', titulo: '#d32f2f' }
   return (
     <span className="flex h-20 overflow-hidden rounded-lg border" style={{ background: c.fondo }} aria-hidden="true">
       <span className="w-1/4" style={{ background: c.barra }} />
