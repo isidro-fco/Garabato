@@ -133,20 +133,27 @@
 }
 /* ===== Garabato ===== */
 
-/* Separador de la portada en la vista previa del editor. */
-.salto-pagina {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
+/* --- Hojas del editor (Escritorio.jsx) --- */
+.escritorio { display: flex; flex-direction: column; align-items: center; }
+.hoja {
+  flex: none;
+  position: relative;
+  box-sizing: border-box;
+  background-color: var(--card);
+  color: var(--card-foreground);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12), 0 0 0 1px var(--border);
 }
-.salto-pagina::before, .salto-pagina::after { content: ''; flex: 1; border-top: 1px dashed var(--border); }
-
-/* En pantalla la portada no necesita la altura de una hoja completa. */
-.vista-previa .portada { height: auto; min-height: 26rem; }
+.hoja-texto { width: var(--hoja-ancho); cursor: text; }
+.hoja-fija { padding: 2.5cm; }
+.hoja-fija .portada { height: var(--doc-alto-util); }
+.hoja-numero {
+  position: absolute;
+  font-family: var(--doc-fuente);
+  font-size: calc(var(--hoja-alto) * 12 / 1056); /* 9 pt a escala */
+  color: var(--muted-foreground);
+  pointer-events: none;
+  user-select: none;
+}
 
 /* --- Vista de impresión (Paged.js) --- */
 .impresion {
@@ -252,4 +259,45 @@
 }
 .calendario .fc-theme-standard .fc-list-day-cushion {
   background: var(--muted);
+}
+
+/* --- Editor con vista en vivo (CodeMirror, ver utils/vistaEnVivo.js) --- */
+.editor-vivo .cm-line { color: var(--foreground); }
+
+.cm-vv-marca { color: var(--muted-foreground); opacity: 0.7; }
+.cm-vv-titulo { font-weight: 700; }
+/* Mismos tamaños que el documento impreso (documento.css): 18, 15, 13 y 12 pt sobre 12 pt. */
+.cm-vv-titulo { line-height: 1.25; }
+.cm-vv-h1 { font-size: 1.5em; }
+.cm-vv-h2 { font-size: 1.25em; }
+.cm-vv-h3 { font-size: 1.085em; }
+.cm-vv-h4, .cm-vv-h5, .cm-vv-h6 { font-size: 1em; }
+.cm-vv-negrita { font-weight: 700; }
+.cm-vv-cursiva { font-style: italic; }
+.cm-vv-tachado { text-decoration: line-through; }
+.cm-vv-codigo { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.88em; background: var(--muted); border-radius: 0.25rem; padding: 0.1em 0.25em; }
+.cm-vv-enlace { color: oklch(0.546 0.245 262.881); text-decoration: underline; text-underline-offset: 3px; }
+.dark .cm-vv-enlace { color: oklch(0.707 0.165 254.624); }
+.cm-vv-url { text-decoration: none; }
+.cm-vv-cita { border-left: 3px solid var(--border); color: var(--muted-foreground); font-style: italic; padding-left: 1em !important; }
+.cm-vv-vineta { display: inline-block; width: 0.6em; color: var(--muted-foreground); font-weight: 700; }
+.cm-vv-numero { color: var(--muted-foreground); }
+.cm-vv-casilla { display: inline-block; width: 0.95em; height: 0.95em; vertical-align: -0.12em; border: 1.5px solid var(--muted-foreground); border-radius: 0.2em; }
+.cm-vv-casilla[data-marcada="true"] { background: var(--foreground) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / 80% no-repeat; border-color: var(--foreground); }
+.dark .cm-vv-casilla[data-marcada="true"] { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.5'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E"); }
+.cm-vv-linea { display: inline-block; width: 100%; vertical-align: middle; border-top: 1px solid var(--border); }
+.cm-vv-imagen { display: block; max-width: 100%; max-height: 22rem; margin: 0.5rem 0; border-radius: 0.5rem; }
+.cm-vv-bloque { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.88em; background: var(--muted); }
+.cm-vv-cerca { color: var(--muted-foreground); font-size: 0.75em; opacity: 0.6; }
+.cm-vv-tabla-cruda { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.88em; }
+.cm-vv-tabla-envoltura { padding: 0.5rem 0; overflow-x: auto; cursor: text; }
+.cm-vv-tabla { border-collapse: collapse; font-size: 0.95em; }
+.cm-vv-tabla th, .cm-vv-tabla td { border: 1px solid var(--border); padding: 0.3rem 0.75rem; text-align: left; }
+.cm-vv-tabla th { background: var(--muted); font-weight: 600; }
+
+/* Fondo de cuadros para ver la transparencia de una imagen (miniatura del logo). */
+.fondo-cuadros {
+  background-color: #fff;
+  background-image: conic-gradient(#e5e5e5 25%, #fff 0 50%, #e5e5e5 0 75%, #fff 0);
+  background-size: 10px 10px;
 }

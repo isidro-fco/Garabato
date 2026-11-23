@@ -1,6 +1,7 @@
-import { ImageUp, Loader2, RefreshCw, Trash2 } from 'lucide-react'
+import { Eraser, ImageUp, Loader2, RefreshCw, Trash2, UserPlus, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { obtenerClase } from '../api.js'
+import { leerLogo, quitarFondo } from '../utils/imagenes.js'
 import { Button } from '@/componentes/ui/button'
 import { Checkbox } from '@/componentes/ui/checkbox'
 import { Input } from '@/componentes/ui/input'
@@ -8,11 +9,14 @@ import { Label } from '@/componentes/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/componentes/ui/select'
 import { Separator } from '@/componentes/ui/separator'
 import { Switch } from '@/componentes/ui/switch'
+import { cn } from '@/lib/utils'
 import {
   fechaDeHoy,
   FUENTES,
   leerDatosAlumno,
+  CAMPOS_ALUMNO,
   recordarDatosAlumno,
+  TITULOS_MAESTRO,
   TAMANOS,
 } from '../utils/opcionesDocumento.js'
 
@@ -30,29 +34,6 @@ async function datosAutomaticos({ cursoId, usuario }) {
     }
   }
   return datos
-}
-
-// Reduce el logo para que no pese en la base: máximo 600 px.
-function leerLogo(archivo) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(archivo)
-    const imagen = new Image()
-    imagen.onload = () => {
-      const escala = Math.min(1, 600 / Math.max(imagen.width, imagen.height))
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.round(imagen.width * escala)
-      canvas.height = Math.round(imagen.height * escala)
-      canvas.getContext('2d').drawImage(imagen, 0, 0, canvas.width, canvas.height)
-      URL.revokeObjectURL(url)
-      // PNG conserva la transparencia; las fotos pesan menos en JPEG.
-      resolve(archivo.type === 'image/png' ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.9))
-    }
-    imagen.onerror = () => {
-      URL.revokeObjectURL(url)
-      reject(new Error('No se pudo leer la imagen'))
-    }
-    imagen.src = url
-  })
 }
 
 // Encabezado de cada sección con su interruptor.
@@ -96,8 +77,6 @@ function Opciones({ valor, onCambiar, opciones, disabled, etiqueta }) {
 
 export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuario, nuevo }) {
   const [rellenando, setRellenando] = useState(false)
-  const [errorLogo, setErrorLogo] = useState(null)
-  const archivoLogo = useRef(null)
   const idContarPortada = useId()
   const { portada, encabezado, pie, numeracion, formato } = opciones
 
@@ -105,7 +84,7 @@ export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuari
   // cambiado mientras se consultaba Classroom) y devuelve las opciones nuevas.
   function cambiar(seccion, campos) {
     const nuevas = onCambiar(seccion, campos)
-    if (seccion === 'portada' && ('matricula' in campos || 'institucion' in campos || 'logo' in campos)) {
+    if (seccion === 'portada' && CAMPOS_ALUMNO.some((c) => c in campos)) {
       recordarDatosAlumno(nuevas.portada)
     }
   }
@@ -126,18 +105,6 @@ export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuari
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nuevo])
 
-  async function subirLogo(evento) {
-    const archivo = evento.target.files[0]
-    evento.target.value = ''
-    if (!archivo) return
-    try {
-      setErrorLogo(null)
-      cambiar('portada', { logo: await leerLogo(archivo) })
-    } catch (error) {
-      setErrorLogo(error.message)
-    }
-  }
-
   const campoPortada = (campo, etiqueta, extra = {}) => (
     <Campo etiqueta={etiqueta}>
       {(id) => (
@@ -155,31 +122,47 @@ export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuari
   return (
     <div className="space-y-5">
       <Seccion titulo="Portada" activa={portada.activa} onActivar={(v) => cambiar('portada', { activa: v })}>
-        {campoPortada('titulo', 'Título', { placeholder: 'El título del documento' })}
         {campoPortada('institucion', 'Institución')}
+        {campoPortada('facultad', 'Facultad')}
+        {campoPortada('carrera', 'Carrera')}
         {campoPortada('materia', 'Materia')}
-        {campoPortada('maestro', 'Maestro')}
-        {campoPortada('alumno', 'Alumno')}
-        {campoPortada('matricula', 'Matrícula')}
+        {campoPortada('titulo', 'Tema', { placeholder: 'El título del documento' })}
+        <div className="grid grid-cols-[7.5rem_1fr] gap-2">
+          <Opciones
+            etiqueta="Se muestra como"
+            valor={portada.tituloMaestro}
+            onCambiar={(v) => cambiar('portada', { tituloMaestro: v })}
+            opciones={TITULOS_MAESTRO.map((t) => [t, t])}
+            disabled={!portada.activa}
+          />
+          {campoPortada('maestro', 'Nombre')}
+        </div>
+        <div className="grid grid-cols-[1fr_6.5rem] gap-2">
+          {campoPortada('alumno', 'Alumno')}
+          {campoPortada('matricula', 'Matrícula')}
+        </div>
+        <Companeros
+          lista={portada.companeros ?? []}
+          deshabilitado={!portada.activa}
+          onCambiar={(companeros) => cambiar('portada', { companeros })}
+        />
+        {campoPortada('grupo', 'Grupo')}
+        {campoPortada('lugar', 'Lugar', { placeholder: 'Ensenada, Baja California' })}
         {campoPortada('fecha', 'Fecha')}
 
-        <Campo etiqueta="Logo">
-          <div className="flex flex-wrap items-center gap-2">
-            {portada.logo && (
-              <img src={portada.logo} alt="Logo actual" className="logo-miniatura h-9 max-w-24 rounded-md border bg-white object-contain p-0.5" />
-            )}
-            <Button variant="outline" size="sm" onClick={() => archivoLogo.current.click()} disabled={!portada.activa}>
-              <ImageUp />{portada.logo ? 'Cambiar' : 'Subir imagen'}
-            </Button>
-            {portada.logo && (
-              <Button variant="ghost" size="sm" onClick={() => cambiar('portada', { logo: null })} disabled={!portada.activa}>
-                <Trash2 />Quitar
-              </Button>
-            )}
-            <input ref={archivoLogo} type="file" accept="image/png,image/jpeg,image/webp" onChange={subirLogo} hidden />
-          </div>
-          {errorLogo && <p className="text-xs text-destructive">{errorLogo}</p>}
-        </Campo>
+        <CampoLogo
+          etiqueta="Logo"
+          valor={portada.logo}
+          deshabilitado={!portada.activa}
+          onCambiar={(logo) => cambiar('portada', { logo })}
+        />
+        <CampoLogo
+          etiqueta="Segundo logo (opcional)"
+          ayuda="Con dos logos, cada uno va en una esquina superior de la portada, a la misma altura."
+          valor={portada.logo2}
+          deshabilitado={!portada.activa}
+          onCambiar={(logo2) => cambiar('portada', { logo2 })}
+        />
 
         <Button
           variant="secondary"
@@ -277,5 +260,127 @@ export default function OpcionesDocumento({ opciones, onCambiar, cursoId, usuari
         />
       </Seccion>
     </div>
+  )
+}
+
+// Un logo de la portada: subir, quitar el fondo liso (blanco de un JPG, por
+// ejemplo) y quitar. Las imágenes sin fondo (PNG o WebP) conservan su transparencia.
+function CampoLogo({ etiqueta, ayuda, valor, deshabilitado, onCambiar }) {
+  const archivo = useRef(null)
+  const [trabajando, setTrabajando] = useState(false)
+  const [aviso, setAviso] = useState(null) // { texto, error }
+
+  async function procesar(tarea) {
+    setTrabajando(true)
+    setAviso(null)
+    try {
+      await tarea()
+    } catch (error) {
+      setAviso({ texto: error.message, error: true })
+    } finally {
+      setTrabajando(false)
+    }
+  }
+
+  const subir = (evento) => {
+    const elegido = evento.target.files[0]
+    evento.target.value = ''
+    if (elegido) procesar(async () => onCambiar(await leerLogo(elegido)))
+  }
+
+  const sinFondo = () => procesar(async () => {
+    const resultado = await quitarFondo(valor)
+    if (resultado) {
+      onCambiar(resultado)
+      setAviso({ texto: 'Fondo quitado.' })
+    } else {
+      setAviso({ texto: 'No se encontró un fondo de un solo color para quitar.' })
+    }
+  })
+
+  return (
+    <Campo etiqueta={etiqueta}>
+      <div className="flex flex-wrap items-center gap-2">
+        {valor && (
+          // Cuadros de fondo: así se nota si la imagen tiene transparencia.
+          <img src={valor} alt={`${etiqueta}: imagen actual`} className="fondo-cuadros h-10 max-w-24 rounded-md border object-contain p-0.5" />
+        )}
+        <Button variant="outline" size="sm" onClick={() => archivo.current.click()} disabled={deshabilitado || trabajando}>
+          {trabajando ? <Loader2 className="animate-spin" /> : <ImageUp />}{valor ? 'Cambiar' : 'Subir imagen'}
+        </Button>
+        {valor && (
+          <>
+            <Button variant="ghost" size="sm" onClick={sinFondo} disabled={deshabilitado || trabajando} title="Vuelve transparente el fondo de un solo color">
+              <Eraser />Quitar fondo
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onCambiar(null)} disabled={deshabilitado || trabajando} aria-label={`Quitar ${etiqueta.toLowerCase()}`}>
+              <Trash2 />Quitar
+            </Button>
+          </>
+        )}
+        <input ref={archivo} type="file" accept="image/png,image/jpeg,image/webp" onChange={subir} hidden />
+      </div>
+      {ayuda && <p className="text-xs text-muted-foreground">{ayuda}</p>}
+      {aviso && <p className={cn('text-xs', aviso.error ? 'text-destructive' : 'text-muted-foreground')} aria-live="polite">{aviso.texto}</p>}
+    </Campo>
+  )
+}
+
+// Más estudiantes en la portada (trabajos en equipo): nombre y matrícula de cada uno.
+function Companeros({ lista, deshabilitado, onCambiar }) {
+  const ultimo = useRef(null)
+  const agregado = useRef(false)
+  // Al agregar, el cursor va al nombre del nuevo estudiante.
+  useEffect(() => {
+    if (agregado.current) ultimo.current?.focus()
+    agregado.current = false
+  }, [lista.length])
+
+  const cambiarUno = (i, campos) => onCambiar(lista.map((c, j) => (j === i ? { ...c, ...campos } : c)))
+
+  return (
+    <>
+      {lista.map((companero, i) => (
+        <div key={i} className="grid grid-cols-[1fr_6.5rem_auto] items-end gap-2">
+          <Campo etiqueta={`Estudiante ${i + 2}`}>
+            {(id) => (
+              <Input
+                id={id}
+                ref={i === lista.length - 1 ? ultimo : undefined}
+                value={companero.nombre}
+                onChange={(e) => cambiarUno(i, { nombre: e.target.value })}
+                disabled={deshabilitado}
+              />
+            )}
+          </Campo>
+          <Campo etiqueta="Matrícula">
+            {(id) => (
+              <Input id={id} value={companero.matricula} onChange={(e) => cambiarUno(i, { matricula: e.target.value })} disabled={deshabilitado} />
+            )}
+          </Campo>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onCambiar(lista.filter((_, j) => j !== i))}
+            disabled={deshabilitado}
+            aria-label={`Quitar estudiante ${i + 2}`}
+          >
+            <X />
+          </Button>
+        </div>
+      ))}
+      <Button
+        variant="outline"
+        size="sm"
+        className="justify-self-start"
+        onClick={() => {
+          agregado.current = true
+          onCambiar([...lista, { nombre: '', matricula: '' }])
+        }}
+        disabled={deshabilitado || lista.length >= 9}
+      >
+        <UserPlus />Agregar estudiante
+      </Button>
+    </>
   )
 }

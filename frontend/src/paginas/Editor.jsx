@@ -2,14 +2,16 @@ import { ArrowLeft, BookMarked, Check, CircleAlert, FileDown, Loader2, Settings2
 import { useEffect, useRef, useState } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { obtenerDocumento } from '../api.js'
+import EditorMarkdown from '../componentes/EditorMarkdown.jsx'
 import { Cargando, MensajeError } from '../componentes/Estado.jsx'
 import FuentesApa from '../componentes/FuentesApa.jsx'
 import OpcionesDocumento from '../componentes/OpcionesDocumento.jsx'
 import VincularTarea from '../componentes/VincularTarea.jsx'
-import VistaPrevia from '../componentes/VistaPrevia.jsx'
+import Escritorio from '../componentes/Escritorio.jsx'
 import { Button } from '@/componentes/ui/button'
+import { Checkbox } from '@/componentes/ui/checkbox'
+import { Label } from '@/componentes/ui/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/componentes/ui/sheet'
-import { Tabs, TabsList, TabsTrigger } from '@/componentes/ui/tabs'
 import { cn } from '@/lib/utils'
 import { completarOpciones } from '../utils/opcionesDocumento.js'
 import { recuperarRespaldo, useAutoguardado } from '../utils/useAutoguardado.js'
@@ -51,18 +53,21 @@ function EditorDocumento({ doc }) {
   const inicial = { ...doc, ...respaldo }
 
   const [titulo, setTitulo] = useState(inicial.titulo)
-  const [contenido, setContenido] = useState(inicial.contenido)
   const [vinculo, setVinculo] = useState({ cursoId: inicial.cursoId, tareaId: inicial.tareaId })
   const [opciones, setOpciones] = useState(() => completarOpciones(inicial.opciones))
   const opcionesActuales = useRef(opciones)
   // Si nunca se ha configurado la portada, al abrir las opciones se llena sola.
   const [sinPortada] = useState(() => !inicial.opciones?.portada)
 
-  const [vista, setVista] = useState('escribir') // solo en celular
+  // Qué se ve en las hojas mientras se escribe (no cambia el PDF).
+  const [ver, setVer] = useState(leerVer)
+  const cambiarVer = (campos) => setVer((actual) => {
+    const nuevo = { ...actual, ...campos }
+    guardarVer(nuevo)
+    return nuevo
+  })
   const [panel, setPanel] = useState(null) // null | 'opciones' | 'fuentes'
-  const texto = useRef(null)
-  // Dónde estaba el cursor al salir del texto (para insertar citas ahí).
-  const cursor = useRef(null)
+  const editor = useRef(null)
   const [exportando, setExportando] = useState(false)
   const [errorExportar, setErrorExportar] = useState(null)
   const { estado, cambiar, vaciar } = useAutoguardado(doc)
@@ -86,27 +91,11 @@ function EditorDocumento({ doc }) {
     return nuevas
   }
 
-  // Inserta una cita donde estaba el cursor (o al final) y deja el cursor después.
+  // Inserta una cita donde estaba el cursor y deja el cursor después.
   function insertarCita(cita) {
-    const actual = texto.current?.value ?? contenido
-    const [inicio, fin] = cursor.current ?? [actual.length, actual.length]
-    const antes = actual.slice(0, inicio)
-    const despues = actual.slice(fin)
-    // Espacios para que la cita no quede pegada a una palabra.
-    const insertado = (antes && !/\s$/.test(antes) ? ' ' : '') + cita + (/^[\p{L}\p{N}]/u.test(despues) ? ' ' : '')
-    const nuevo = antes + insertado + despues
-    const posicion = inicio + insertado.length
-    setContenido(nuevo)
-    cambiar({ contenido: nuevo })
-    cursor.current = [posicion, posicion]
-    if (esMovil) {
-      setPanel(null)
-      setVista('escribir')
-    }
-    requestAnimationFrame(() => {
-      texto.current?.focus()
-      texto.current?.setSelectionRange(posicion, posicion)
-    })
+    if (esMovil) setPanel(null)
+    // Después de cerrar la hoja de fuentes en celular.
+    requestAnimationFrame(() => editor.current?.insertar(cita))
   }
 
   async function exportar() {
@@ -166,7 +155,7 @@ function EditorDocumento({ doc }) {
             <Link to="/documentos"><ArrowLeft />Mis documentos</Link>
           </Button>
           <EstadoGuardado estado={estado} />
-          <div className="ml-auto flex gap-2">
+          <div className="ml-auto flex flex-wrap justify-end gap-2">
             <Button variant={panel === 'fuentes' ? 'secondary' : 'outline'} size="sm" aria-expanded={panel === 'fuentes'} onClick={() => alternar('fuentes')}>
               <BookMarked />Fuentes
             </Button>
@@ -202,39 +191,36 @@ function EditorDocumento({ doc }) {
           }}
         />
 
-        <Tabs value={vista} onValueChange={setVista} className="md:hidden">
-          <TabsList className="w-full">
-            <TabsTrigger value="escribir">Escribir</TabsTrigger>
-            <TabsTrigger value="previa">Vista previa</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="sr-only" htmlFor="editor-texto">Contenido en Markdown</label>
-          <textarea
-            id="editor-texto"
-            ref={texto}
-            onSelect={(e) => { cursor.current = [e.target.selectionStart, e.target.selectionEnd] }}
-            onBlur={(e) => { cursor.current = [e.target.selectionStart, e.target.selectionEnd] }}
-            className={cn(
-              'min-h-[65vh] resize-none rounded-xl border bg-card px-5 py-4 font-mono text-sm leading-relaxed outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:h-full md:min-h-0',
-              vista !== 'escribir' && 'hidden md:block',
+        {(opciones.portada.activa || opciones.numeracion.activa) && (
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm" role="group" aria-label="Qué ocultar mientras escribes">
+            {opciones.portada.activa && (
+              <Casilla id="ocultar-portada" marcada={!ver.portada} onCambiar={(v) => cambiarVer({ portada: !v })}>
+                Ocultar portada
+              </Casilla>
             )}
-            value={contenido}
-            placeholder={'# Título\n\nEscribe en Markdown…'}
-            spellCheck
-            onChange={(e) => {
-              setContenido(e.target.value)
-              cambiar({ contenido: e.target.value })
-            }}
+            {opciones.numeracion.activa && (
+              <Casilla id="ocultar-numeros" marcada={!ver.numeros} onCambiar={(v) => cambiarVer({ numeros: !v })}>
+                Ocultar números de página
+              </Casilla>
+            )}
+          </div>
+        )}
+
+        <Escritorio
+          titulo={titulo}
+          opciones={opciones}
+          ver={ver}
+          onClicHoja={() => editor.current?.enfocarAlFinal()}
+          className="h-[70vh] min-h-0 rounded-xl border md:h-auto md:flex-1"
+        >
+          <EditorMarkdown
+            ref={editor}
+            id="editor-texto"
+            etiqueta="Contenido del documento"
+            valorInicial={inicial.contenido}
+            onCambiar={(texto) => cambiar({ contenido: texto })}
           />
-          <VistaPrevia
-            titulo={titulo}
-            contenido={contenido}
-            opciones={opciones}
-            className={cn('min-h-[65vh] md:h-full md:min-h-0', vista !== 'previa' && 'hidden md:block')}
-          />
-        </div>
+        </Escritorio>
       </div>
 
       {/* Escritorio: panel al lado, para ver los cambios en la vista previa. Celular: hoja. */}
@@ -258,6 +244,35 @@ function EditorDocumento({ doc }) {
           </SheetContent>
         </Sheet>
       )}
+    </div>
+  )
+}
+
+// --- Lo que se ve en las hojas (se recuerda en este navegador) ---
+const CLAVE_VER = 'garabato:ver-hojas'
+const VER_BASE = { portada: true, numeros: true }
+
+function leerVer() {
+  try {
+    return { ...VER_BASE, ...JSON.parse(localStorage.getItem(CLAVE_VER)) }
+  } catch {
+    return VER_BASE
+  }
+}
+
+function guardarVer(ver) {
+  try {
+    localStorage.setItem(CLAVE_VER, JSON.stringify(ver))
+  } catch {
+    // Sin localStorage solo se pierde la comodidad.
+  }
+}
+
+function Casilla({ id, marcada, onCambiar, children }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Checkbox id={id} checked={marcada} onCheckedChange={(v) => onCambiar(v === true)} />
+      <Label htmlFor={id} className="font-normal text-muted-foreground">{children}</Label>
     </div>
   )
 }

@@ -59,14 +59,36 @@
   break-after: page;
 }
 .portada-logo { max-height: 3.2cm; max-width: 7cm; object-fit: contain; margin-bottom: 0.6cm; }
-.portada-institucion { font-size: 14pt; font-weight: bold; margin: 0; }
-.portada p, .portada h1 { text-align: center; }
-.portada-centro { flex: 1; align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: 0.4cm; }
-.portada-titulo { font-size: 22pt; margin: 0; line-height: 1.2; }
-.portada-materia { font-size: 14pt; margin: 0; }
-.portada-datos { margin: 0 0 1cm; display: grid; gap: 0.15cm; font-size: 12pt; }
-.portada-datos p { margin: 0; text-align: center; }
-.portada-fecha { margin: 0; font-size: 12pt; }
+/* Dos logos: uno en cada esquina, alineados arriba (a la misma altura); la institución va abajo. */
+.portada-encabezado {
+  align-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1cm;
+  margin-bottom: 0.6cm;
+}
+.portada-encabezado .portada-logo { max-height: 2.8cm; max-width: 6cm; min-width: 0; margin: 0; }
+.portada p { margin: 0; text-align: center; }
+.portada-institucion { margin-top: 0.3cm; line-height: 1.2; }
+.portada-universidad { font-size: 18pt; font-weight: bold; }
+.portada-facultad { font-size: 13pt; font-weight: bold; }
+.portada-carrera { margin-top: 0.9cm !important; font-size: 15pt; font-weight: bold; line-height: 1.2; }
+/* Cada dato: la etiqueta chica arriba y el valor grande abajo; repartidos en el espacio que queda. */
+.portada-datos {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin: 0.4cm 0;
+  text-align: center;
+  line-height: 1.2;
+}
+.portada-datos dt { font-size: 12pt; font-weight: bold; }
+.portada-datos dd { margin: 0.1cm 0 0; font-size: 16pt; font-weight: bold; }
+.portada-datos dd span { display: block; }
+.portada-fecha { font-size: 14pt; font-weight: bold; }
 
 /* --- Referencias (APA 7): título centrado y sangría francesa de 1.27 cm --- */
 

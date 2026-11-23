@@ -269,3 +269,24 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Prueba en Chrome (23/23): pintar arrastrando, borrar, reemplazar, teclado, persistencia, domingo, inicio, celular con toque y modo oscuro.
 
 **Resultado:** el horario se captura pintando la tabla en lugar de llenar un formulario por bloque. ✅
+
+---
+
+## Iteración 13 — Editor en hojas tamaño carta y portada universitaria (22 nov 2026)
+
+**Editor**
+- `EditorMarkdown.jsx` (CodeMirror 6) reemplaza el textarea y la vista previa aparte: el Markdown se ve ya formateado (títulos, negritas, listas, casillas, citas, tablas, imágenes) y solo la línea donde está el cursor muestra sus marcas (`utils/vistaEnVivo.js`). Ctrl+B / Ctrl+I, Enter continúa listas, deshacer y rehacer.
+- `Escritorio.jsx`: el documento siempre se ve como hojas del tamaño real (carta o A4) sobre un fondo gris: portada, texto y referencias, con los márgenes, letra e interlineado del PDF. Se reduce si no cabe; en celular la letra no baja de 15 px.
+- La hoja del texto crece por páginas, con los cortes marcados y el número de cada página según las opciones (aproximado al PDF).
+- Se quitó el botón "Vista de impresión" (`VistaPrevia.jsx`). Casillas "Ocultar portada" y "Ocultar números de página" (solo cambian la vista; se recuerdan en el navegador).
+
+**Portada**
+- Distribución de portada universitaria: logos en las esquinas, institución y facultad, carrera, cada dato con su etiqueta arriba (materia, tema, profesor/a, alumno, matrícula, grupo) y al final lugar y fecha. Campos nuevos: facultad, carrera, grupo, lugar y cómo se muestra el maestro.
+- Segundo logo: con dos, cada uno en una esquina superior a la misma altura.
+- `utils/imagenes.js`: los logos conservan la transparencia (PNG/WebP sin fondo) y el botón "Quitar fondo" vuelve transparente un fondo de un solo color sin borrar el interior del logo.
+- "Agregar estudiante" para trabajos en equipo: con varios, la portada muestra "Alumnos:" con un renglón "Nombre (matrícula)" por estudiante.
+
+**Pruebas**
+- Prueba en Chrome del editor en vivo y las hojas (30/30 y 20/20), logos (19/19 y 4/4), portada (4/4) y equipo (7/7), en escritorio, celular y modo oscuro, revisando también el PDF.
+
+**Resultado:** se escribe directamente sobre hojas que se ven como el documento final, con una portada como la que pide la universidad. ✅
