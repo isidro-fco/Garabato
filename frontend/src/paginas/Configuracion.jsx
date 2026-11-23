@@ -1,25 +1,50 @@
 import { Clock, Loader2, Plus, X } from 'lucide-react'
 import { useId, useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { crearHorario, eliminarHorario, listarClases, listarHorarios } from '../api.js'
 import { Cargando, Encabezado, MensajeError, Vacio } from '../componentes/Estado.jsx'
+import SelectorMaterias from '../componentes/SelectorMaterias.jsx'
 import { Button } from '@/componentes/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/componentes/ui/card'
 import { Input } from '@/componentes/ui/input'
 import { Label } from '@/componentes/ui/label'
 import { coloresPorClase, DIAS, formatearHora, nombreDia, posicionDia, seEnciman } from '../utils/horario.js'
+import { soloActivas } from '../utils/materias.js'
 import { useCargar } from '../utils/useCargar.js'
 
 const cargarTodo = () => Promise.all([listarClases(), listarHorarios()])
 
 export default function Configuracion() {
+  const { materias, cambiarMaterias } = useOutletContext()
   const { cargando, datos, error } = useCargar(cargarTodo, [])
+  const activas = datos && soloActivas(datos[0], materias)
 
   return (
     <>
-      <Encabezado titulo="Configuración" descripcion="Captura a qué hora tienes cada materia para verla en tu horario semanal." />
+      <Encabezado titulo="Configuración" descripcion="Elige tus materias y captura tu horario semanal." />
       {cargando && <Cargando texto="Cargando tus clases…" />}
       {error && <MensajeError error={error} />}
-      {datos && <EditorHorario clases={datos[0]} inicial={datos[1]} />}
+      {datos && (
+        <div className="space-y-10">
+          <section className="space-y-3" aria-labelledby="titulo-materias">
+            <div className="space-y-1">
+              <h2 id="titulo-materias" className="text-lg font-semibold tracking-tight">Materias</h2>
+              <p className="text-sm text-muted-foreground">Solo las materias marcadas aparecen en tus clases, tu calendario y tu horario.</p>
+            </div>
+            {datos[0].length === 0
+              ? <Vacio>No tienes clases activas en Classroom.</Vacio>
+              : <SelectorMaterias clases={datos[0]} inicial={materias} onGuardar={cambiarMaterias} textoGuardar="Guardar materias" soloSiCambia={materias !== null} />}
+          </section>
+
+          <section className="space-y-3" aria-labelledby="titulo-horario">
+            <div className="space-y-1">
+              <h2 id="titulo-horario" className="text-lg font-semibold tracking-tight">Horario</h2>
+              <p className="text-sm text-muted-foreground">Captura a qué hora tienes cada materia para verla en tu horario semanal.</p>
+            </div>
+            <EditorHorario clases={activas} inicial={datos[1]} />
+          </section>
+        </div>
+      )}
     </>
   )
 }
@@ -32,7 +57,7 @@ function EditorHorario({ clases, inicial }) {
   const [errorAccion, setErrorAccion] = useState(null)
   const colores = coloresPorClase(clases)
 
-  if (clases.length === 0) return <Vacio>No tienes clases activas en Classroom.</Vacio>
+  if (clases.length === 0) return <Vacio>No tienes materias seleccionadas.</Vacio>
 
   async function agregar(nuevos) {
     setErrorAccion(null)

@@ -43,5 +43,9 @@ export async function crearTablas() {
       CHECK (hora_fin > hora_inicio)
     );
     CREATE INDEX IF NOT EXISTS horarios_usuario_idx ON horarios (usuario_id);
+
+    -- Materias de Classroom que el usuario quiere ver. NULL = todavía no elige
+    -- (primer acceso): el frontend le muestra la pantalla para escogerlas.
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS materias TEXT[];
   `);
 }

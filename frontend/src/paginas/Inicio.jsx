@@ -10,6 +10,7 @@ import { listarClases, listarHorarios, listarPendientes } from '../api.js'
 import { Cargando, Encabezado, MensajeError } from '../componentes/Estado.jsx'
 import { Tabs, TabsList, TabsTrigger } from '@/componentes/ui/tabs'
 import { COLOR_SIN_CLASE, coloresPorClase, rangoHorario } from '../utils/horario.js'
+import { soloActivas } from '../utils/materias.js'
 import { useCargar } from '../utils/useCargar.js'
 import { useMediaQuery } from '../utils/useMediaQuery.js'
 
@@ -22,11 +23,12 @@ const BASE = {
 }
 
 export default function Inicio() {
-  const { usuario } = useOutletContext()
+  const { usuario, materias } = useOutletContext()
   const [params, setParams] = useSearchParams()
   const vista = params.get('vista') === 'horario' ? 'horario' : 'entregas'
   // Las clases solo dan nombre y color; si Classroom falla, el calendario sigue.
   const clases = useCargar(() => listarClases().catch(() => []), [])
+  const activas = clases.datos && soloActivas(clases.datos, materias)
 
   return (
     <>
@@ -45,16 +47,21 @@ export default function Inicio() {
       {clases.cargando
         ? <Cargando />
         : vista === 'horario'
-          ? <Horario clases={clases.datos} />
-          : <Entregas clases={clases.datos} />}
+          ? <Horario clases={activas} materias={materias} />
+          : <Entregas clases={activas} materias={materias} />}
     </>
   )
 }
 
-function Entregas({ clases }) {
+// Con materias elegidas, solo se ven las entregas y clases de esas materias.
+const deMaterias = (lista, materias) => (materias ? lista.filter((x) => materias.includes(x.cursoId)) : lista)
+
+function Entregas({ clases, materias }) {
   const navigate = useNavigate()
   const esMovil = useMediaQuery('(max-width: 767px)')
-  const { cargando, datos: tareas, error } = useCargar(listarPendientes, [])
+  const pendientes = useCargar(listarPendientes, [])
+  const { cargando, error } = pendientes
+  const tareas = pendientes.datos && deMaterias(pendientes.datos, materias)
   const [ahora] = useState(() => new Date())
   if (cargando) return <Cargando texto="Cargando tus entregas…" />
   if (error) return <MensajeError error={error} />
@@ -128,10 +135,12 @@ function ContenidoEntrega({ event, timeText, view }) {
   )
 }
 
-function Horario({ clases }) {
+function Horario({ clases, materias }) {
   const navigate = useNavigate()
   const esMovil = useMediaQuery('(max-width: 767px)')
-  const { cargando, datos: horarios, error } = useCargar(listarHorarios, [])
+  const bloques = useCargar(listarHorarios, [])
+  const { cargando, error } = bloques
+  const horarios = bloques.datos && deMaterias(bloques.datos, materias)
   if (cargando) return <Cargando texto="Cargando tu horario…" />
   if (error) return <MensajeError error={error} />
 

@@ -1,6 +1,6 @@
 import { Link2, Unlink } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { listarClases, listarTareas, obtenerTarea } from '../api.js'
 import { Button } from '@/componentes/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/componentes/ui/select'
@@ -63,6 +63,9 @@ function SelectorTarea({ cursoInicial, onElegir, onCancelar }) {
   const [curso, setCurso] = useState(cursoInicial ?? '')
   const [tarea, setTarea] = useState('')
   const clases = useCargar(listarClases, [])
+  const { materias } = useOutletContext()
+  // Solo las materias elegidas, más la ya vinculada aunque esté oculta.
+  const opciones = clases.datos?.filter((c) => c.id === cursoInicial || !materias || materias.includes(c.id))
   const tareas = useCargar(() => (curso ? listarTareas(curso) : nada()), [curso])
 
   return (
@@ -78,7 +81,7 @@ function SelectorTarea({ cursoInicial, onElegir, onCancelar }) {
           <SelectValue placeholder={clases.cargando ? 'Cargando clases…' : 'Elige una clase'} />
         </SelectTrigger>
         <SelectContent>
-          {clases.datos?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nombre}</SelectItem>)}
+          {opciones?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nombre}</SelectItem>)}
         </SelectContent>
       </Select>
 

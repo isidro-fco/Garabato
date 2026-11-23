@@ -229,3 +229,23 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 **Pendiente:** preparar la demo el día de la presentación (pasos en el README).
 
 **Resultado:** la app aguanta el arranque lento de Render y el README la presenta con capturas. ✅
+
+---
+
+## Iteración 11 — Selección de materias activas (22 nov 2026)
+
+**Frontend**
+- `Bienvenida.jsx`: en el primer acceso, antes de entrar a la app, el usuario escoge qué materias de Classroom está cursando (todas marcadas de inicio, "Todas" / "Ninguna", al menos una).
+- `SelectorMaterias.jsx`: el mismo selector se usa en la bienvenida y en una nueva sección "Materias" de Configuración.
+- Solo las materias elegidas aparecen en Clases (con aviso de cuántas están ocultas), en las entregas y el horario del inicio, en el editor de horario y al vincular un documento a una tarea. Los documentos se siguen mostrando todos.
+- `RutaPrivada` comparte `materias` y `cambiarMaterias` con todas las páginas.
+
+**Backend**
+- Columna `usuarios.materias` (`TEXT[]`, `NULL` = todavía no elige), devuelta en `/api/yo`.
+- `PUT /api/yo/materias` para guardar la selección (sin repetidos, máximo 200).
+
+**Pruebas**
+- Backend contra la base `dev` con usuarios temporales.
+- Prueba en Chrome (20/20): bienvenida, filtro en cada página, guardar desde Configuración, persistencia, celular y modo oscuro.
+
+**Resultado:** cada usuario ve solo las materias que cursa, en el celular y en la computadora. ✅

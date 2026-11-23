@@ -30,8 +30,17 @@ export async function guardarUsuario(perfil, refreshToken) {
 
 export async function obtenerUsuario(id) {
   const { rows } = await query(
-    'SELECT id, nombre, correo, foto FROM usuarios WHERE id = $1',
+    'SELECT id, nombre, correo, foto, materias FROM usuarios WHERE id = $1',
     [id],
   );
   return rows[0] ?? null;
+}
+
+// Guarda las materias (ids de cursos de Classroom) que el usuario quiere ver.
+export async function guardarMaterias(id, materias) {
+  const { rows } = await query(
+    'UPDATE usuarios SET materias = $2, actualizado_en = now() WHERE id = $1 RETURNING materias',
+    [id, [...new Set(materias)]],
+  );
+  return rows[0]?.materias ?? null;
 }

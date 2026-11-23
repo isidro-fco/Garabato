@@ -65,6 +65,8 @@ const id = (valor) => encodeURIComponent(valor)
 // --- Sesión ---
 export const obtenerYo = () => pedir('/api/yo')
 export const cerrarSesion = () => pedir('/auth/logout', { method: 'POST' })
+// materias: ids de los cursos de Classroom que se muestran en la app.
+export const guardarMaterias = (materias) => enviar('/api/yo/materias', 'PUT', { materias })
 // El login es una navegación completa (no fetch) porque pasa por la pantalla de Google.
 export const URL_LOGIN = '/auth/google'
 // Una petición ligera para que Render empiece a arrancar; no importa la respuesta.

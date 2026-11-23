@@ -1,6 +1,6 @@
 import oauth2 from '@fastify/oauth2';
 import { config } from '../../config.js';
-import { guardarUsuario, obtenerPerfilGoogle, obtenerUsuario } from './auth.service.js';
+import { guardarMaterias, guardarUsuario, obtenerPerfilGoogle, obtenerUsuario } from './auth.service.js';
 
 const SCOPES = [
   'openid',
@@ -54,4 +54,19 @@ export default async function authRoutes(app) {
     }
     return usuario;
   });
+
+  // Materias que se muestran en la app. Un arreglo vacío es válido (no ver ninguna).
+  app.put('/api/yo/materias', {
+    preHandler: app.requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['materias'],
+        additionalProperties: false,
+        properties: {
+          materias: { type: 'array', maxItems: 200, items: { type: 'string', minLength: 1, maxLength: 100 } },
+        },
+      },
+    },
+  }, async (request) => ({ materias: await guardarMaterias(request.usuarioId, request.body.materias) }));
 }
