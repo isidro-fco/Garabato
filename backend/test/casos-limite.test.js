@@ -329,5 +329,7 @@ describe('Preferencias', () => {
     assert.equal((await pedir(A, 'PUT', '/api/yo/colores', { colores: { titulo1: '#12345' } })).status, 400);
     assert.equal((await pedir(A, 'PUT', '/api/yo/colores', { colores: { 'Mala-Clave': '#123456' } })).status, 400);
     assert.deepEqual((await pedir(A, 'PUT', '/api/yo/colores', { colores: { titulo1: '#123456', negrita: null } })).json.colores, { titulo1: '#123456' });
+    assert.deepEqual((await pedir(A, 'PUT', '/api/yo/colores', { colores: { titulo1: '#123456', grises: true } })).json.colores, { titulo1: '#123456', grises: true });
+    assert.deepEqual((await pedir(A, 'PUT', '/api/yo/colores', { colores: { titulo1: '#123456', grises: false } })).json.colores, { titulo1: '#123456' });
   });
 });

@@ -373,3 +373,18 @@ Registro corto de lo que se hizo en cada iteración del proyecto.
 - Revisión en Chrome en modo claro y oscuro: barra lateral, inicio con calendario, documentos, configuración, tema y login; logo legible desde 16 px.
 
 **Resultado:** Garabato tiene logo propio y una paleta que lo acompaña en toda la app. ✅
+
+## Iteración 19 — Escala de grises en el editor (24 nov 2026)
+
+**Frontend**
+- Casilla "Escala de grises" en Configuración → Colores del editor: convierte cada color (elegido o de la paleta, en tema claro y oscuro) al gris con la misma luminosidad. Se ve al instante en el editor y la vista previa, y también se aplica al PDF.
+- Los colores elegidos se conservan: al desmarcarla vuelven. Mientras está activa, los selectores muestran el gris y quedan desactivados; "Restablecer todos" no la cambia.
+- El resumen de Configuración indica "Escala de grises" cuando está activa.
+
+**Backend**
+- `PUT /api/yo/colores` acepta `grises: true|false` además de los colores; se guarda en la misma columna JSON.
+
+**Pruebas**
+- Nuevo caso en `casos-limite.test.js` para `grises`; 38/38 pasan. Lint y build sin errores.
+
+**Resultado:** el editor puede mostrarse en tonos de gris sin perder los colores personalizados. ✅

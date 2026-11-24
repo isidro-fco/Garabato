@@ -70,7 +70,7 @@ export default async function authRoutes(app) {
     },
   }, async (request) => ({ materias: await guardarMaterias(request.usuarioId, request.body.materias) }));
 
-  // Colores del editor: { clave: "#rrggbb" | null }. Las claves son las de la
+  // Colores del editor: { clave: "#rrggbb" | null }, más { grises: true|false }. Las claves son las de la
   // paleta del frontend (paleta-markdown.json); aquí solo se valida la forma.
   app.put('/api/yo/colores', {
     preHandler: app.requireAuth,
@@ -85,7 +85,7 @@ export default async function authRoutes(app) {
             maxProperties: 30,
             propertyNames: { type: 'string', pattern: '^[a-z][a-z0-9]{0,29}$' },
             additionalProperties: {
-              anyOf: [{ type: 'string', pattern: '^#[0-9a-fA-F]{6}$' }, { type: 'null' }],
+              anyOf: [{ type: 'string', pattern: '^#[0-9a-fA-F]{6}$' }, { type: 'boolean' }, { type: 'null' }],
             },
           },
         },

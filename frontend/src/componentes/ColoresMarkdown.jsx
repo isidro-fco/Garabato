@@ -2,9 +2,10 @@ import { Check, Loader2, RotateCcw } from 'lucide-react'
 import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { Button } from '@/componentes/ui/button'
+import { Checkbox } from '@/componentes/ui/checkbox'
 import { Label } from '@/componentes/ui/label'
 import { Switch } from '@/componentes/ui/switch'
-import { ELEMENTOS, normalizar, usarColores } from '../utils/coloresMarkdown.js'
+import { aGris, contarElegidos, ELEMENTOS, normalizar, usarColores } from '../utils/coloresMarkdown.js'
 import { useTema } from '../utils/tema.js'
 import { MensajeError } from './Estado.jsx'
 
@@ -62,7 +63,9 @@ export default function ColoresMarkdown() {
   const [verMarcas, setVerMarcas] = useState(false)
   const { oscuro } = useTema()
   const idMarcas = useId()
-  const personalizados = Object.values(colores).some(Boolean)
+  const idGrises = useId()
+  const personalizados = contarElegidos(colores) > 0
+  const { grises } = colores
 
   async function guardar(nuevos) {
     pendiente.current = null
@@ -101,18 +104,28 @@ export default function ColoresMarkdown() {
           {estado === 'guardado' && <span className="flex items-center gap-1"><Check className="size-3.5" />Guardado</span>}
         </div>
         {error && <MensajeError error={error} onReintentar={() => guardar(colores)} />}
-        <ul className="divide-y rounded-xl border bg-card">
+        <div className="flex items-start gap-3 rounded-xl border bg-card px-3 py-2.5">
+          <Checkbox id={idGrises} checked={grises} onCheckedChange={(v) => cambiar({ ...colores, grises: v === true })} className="mt-0.5" />
+          <Label htmlFor={idGrises} className="flex-col items-start gap-0 font-normal">
+            <span>Escala de grises</span>
+            <span className="text-xs text-muted-foreground">Todos los colores en tonos de gris, también en el PDF. Tus colores se conservan.</span>
+          </Label>
+        </div>
+        <ul className="divide-y rounded-xl border bg-card aria-disabled:opacity-60" aria-disabled={grises || undefined}>
           {ELEMENTOS.map(([clave, nombre, claro, enOscuro]) => {
             const id = `color-${clave}`
             const valor = colores[clave]
+            const actual = valor ?? (oscuro ? enOscuro : claro)
             return (
               <li key={clave} className="flex items-center gap-3 px-3 py-2">
                 <input
                   id={id}
                   type="color"
-                  value={valor ?? (oscuro ? enOscuro : claro)}
+                  value={grises ? aGris(actual) : actual}
+                  disabled={grises}
+                  title={grises ? 'Desactiva la escala de grises para elegir colores' : undefined}
                   onChange={(e) => cambiar({ ...colores, [clave]: e.target.value })}
-                  className="size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5"
+                  className="size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5 disabled:cursor-not-allowed"
                 />
                 <Label htmlFor={id} className="min-w-0 flex-1 flex-col items-start gap-0 font-normal">
                   <span>{nombre}</span>
@@ -128,7 +141,7 @@ export default function ColoresMarkdown() {
           })}
         </ul>
         {personalizados && (
-          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => cambiar(Object.fromEntries(ELEMENTOS.map(([c]) => [c, null])))}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => cambiar({ ...Object.fromEntries(ELEMENTOS.map(([c]) => [c, null])), grises })}>
             <RotateCcw />Restablecer todos
           </Button>
         )}

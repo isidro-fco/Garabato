@@ -9,7 +9,7 @@ import SelectorMaterias from '../componentes/SelectorMaterias.jsx'
 import SelectorTema from '../componentes/SelectorTema.jsx'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/componentes/ui/dialog'
 import { cn } from '@/lib/utils'
-import { ELEMENTOS, hayElegidos } from '../utils/coloresMarkdown.js'
+import { contarElegidos, ELEMENTOS } from '../utils/coloresMarkdown.js'
 import { celdasDesdeHorarios } from '../utils/horario.js'
 import { soloActivas } from '../utils/materias.js'
 import { NOMBRES_TEMA, useTema } from '../utils/tema.js'
@@ -50,7 +50,7 @@ export default function Configuracion() {
   const horas = horarios ? celdasDesdeHorarios(horarios.filter((h) => idsActivas.has(h.cursoId))).size : 0
   const conHorario = new Set(horarios?.filter((h) => idsActivas.has(h.cursoId)).map((h) => h.cursoId)).size
   const { tema, oscuro } = useTema()
-  const personalizados = Object.values(colores ?? {}).filter(Boolean).length
+  const personalizados = contarElegidos(colores)
 
   const OPCIONES = [
     {
@@ -89,7 +89,10 @@ export default function Configuracion() {
       titulo: 'Colores del editor',
       descripcion: 'El color de cada elemento de Markdown mientras escribes y en el PDF.',
       icono: Palette,
-      resumen: hayElegidos(colores) ? `${personalizados} ${personalizados === 1 ? 'color personalizado' : 'colores personalizados'}` : 'Paleta predeterminada',
+      resumen: [
+        colores?.grises && 'Escala de grises',
+        personalizados ? `${personalizados} ${personalizados === 1 ? 'color personalizado' : 'colores personalizados'}` : !colores?.grises && 'Paleta predeterminada',
+      ].filter(Boolean).join(' · '),
       muestra: true,
       ancho: 'sm:max-w-5xl',
       contenido: <ColoresMarkdown />,
